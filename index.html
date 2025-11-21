@@ -213,7 +213,12 @@
             font-weight: bold;
         }
 
-        @media (max-width: 768px) {
+        @media screen and (max-width: 768px) 
+            {
+            td:nth-child(1), th:nth-child(1) { 
+                display: none;
+            }
+            {
             .logo {
                 width: 20vw;
                 max-width: 140px;
@@ -480,6 +485,7 @@
 </body>
 
 </html>
+
 
 
 
