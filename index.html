@@ -163,6 +163,35 @@
             overflow-x: auto;
             font-size: 13px;
         }
+        .sticky-column th:first-child,
+        .sticky-column td:first-child {
+            /* 1. Mengaktifkan posisi sticky */
+            position: sticky;
+            /* 2. Menentukan di mana kolom akan menempel (0px dari tepi kiri kontainer) */
+            left: 0;
+            /* 3. Menambahkan warna latar belakang agar konten di bawahnya tidak terlihat saat scroll */
+            background-color: #f8f8f8; /* Ganti dengan warna latar tabel Anda */
+            /* 4. Menentukan z-index agar kolom sticky berada di atas konten lain saat tumpang tindih */
+            z-index: 10; 
+        }
+        
+        /* Opsional: Jika Anda juga ingin mengunci BARIS HEADER saat scroll vertikal */
+        .sticky-column th {
+            position: sticky;
+            top: 0; /* Menempel di atas saat scroll vertikal */
+            background-color: #e0e0e0;
+            z-index: 20; /* Lebih tinggi agar berada di atas kolom sticky */
+        }
+        
+        /* Gabungan: Kolom Pertama (Header) yang Sticky ke Kiri dan Atas */
+        .sticky-column th:first-child {
+            z-index: 30; /* Paling tinggi agar berada di atas semua */
+        }
+        
+        table.sticky-column {
+            /* Hanya untuk demo, pastikan lebar tabel cukup untuk memicu scroll */
+            min-width: 600px; 
+        }
         
         th, td {
             padding: 8px;
@@ -486,6 +515,7 @@
 </body>
 
 </html>
+
 
 
 
