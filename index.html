@@ -38,6 +38,52 @@
             input, select, .reset-btn, .tombol-back { width: 100%; max-width: none; }
         }
     </style>
+</head>
+<body>
+    <div class="container">
+        <h2>M-Direct Performance Region Sumatera</h2>
+        
+        <div class="filter-container">
+            <input type="text" id="searchBox" placeholder="Name or Marketing Code..." onkeyup="filterAndSearchTable()">
+            <select id="positionFilter" onchange="filterAndSearchTable()">
+                <option value="">All Position</option>
+                <option value="RM">RM</option>
+                <option value="RM C">RM Consumer</option>
+                <option value="RM P">RM Prioritas</option>
+                <option value="RM F">RM Funding & Hajj</option>
+                <option value="CS">CS</option>
+            </select>
+            <select id="branchFilter" onchange="filterAndSearchTable()">
+                <option value="">All Branch</option>
+            </select>
+            <select id="periodeFilter" onchange="filterAndSearchTable()">
+                <option value="">All Period</option>
+            </select>
+            <select id="zeroMTDFilter" onchange="filterAndSearchTable()">
+                <option value="">Login MTD</option>
+                <option value="0">NOT Login MTD</option>
+            </select>
+            <select id="zeroDTDFilter" onchange="filterAndSearchTable()">
+                <option value="">Login DTD</option>
+                <option value="N">NOT Login DTD</option>
+            </select>
+            <button class="reset-btn" onclick="resetFilter()">Reset</button>
+            <button class="back-btn" onclick="https://bit.ly/AppRegionSumatera">Back</button>
+<!--            <a href="https://bit.ly/AppRegionSumatera" class="tombol-back">Back</a>-->
+            <h3><p id="time-date"></p></h3>
+        </div>
+
+        <div class="table-container">
+            <table id="dataTable">
+                <thead>
+                    <tr id="tableHead"></tr>
+                </thead>
+                <tbody id="tableBody"></tbody>
+            </table>
+        </div>
+    </div>
+    <button class="print-btn" onclick="printTable()">Print / Save PDF</button>
+
     <script>
         let tableData = [];
 
@@ -172,54 +218,10 @@
             location.reload(); // Solusi yang lebih aman untuk memuat ulang semua JavaScript
         }
     </script>
-</head>
-<body>
-    <div class="container">
-        <h2>M-Direct Performance Region Sumatera</h2>
-        
-        <div class="filter-container">
-            <input type="text" id="searchBox" placeholder="Name or Marketing Code..." onkeyup="filterAndSearchTable()">
-            <select id="positionFilter" onchange="filterAndSearchTable()">
-                <option value="">All Position</option>
-                <option value="RM">RM</option>
-                <option value="RM C">RM Consumer</option>
-                <option value="RM P">RM Prioritas</option>
-                <option value="RM F">RM Funding & Hajj</option>
-                <option value="CS">CS</option>
-            </select>
-            <select id="branchFilter" onchange="filterAndSearchTable()">
-                <option value="">All Branch</option>
-            </select>
-            <select id="periodeFilter" onchange="filterAndSearchTable()">
-                <option value="">All Period</option>
-            </select>
-            <select id="zeroMTDFilter" onchange="filterAndSearchTable()">
-                <option value="">Login MTD</option>
-                <option value="0">NOT Login MTD</option>
-            </select>
-            <select id="zeroDTDFilter" onchange="filterAndSearchTable()">
-                <option value="">Login DTD</option>
-                <option value="N">NOT Login DTD</option>
-            </select>
-            <button class="reset-btn" onclick="resetFilter()">Reset</button>
-            <button class="back-btn" onclick="https://bit.ly/AppRegionSumatera">Back</button>
-<!--            <a href="https://bit.ly/AppRegionSumatera" class="tombol-back">Back</a>-->
-            <h3><p id="time-date"></p></h3>
-        </div>
-
-        <div class="table-container">
-            <table id="dataTable">
-                <thead>
-                    <tr id="tableHead"></tr>
-                </thead>
-                <tbody id="tableBody"></tbody>
-            </table>
-        </div>
-    </div>
-    <button class="print-btn" onclick="printTable()">Print / Save PDF</button>
-
+    
 </body>
 </html>
+
 
 
 
