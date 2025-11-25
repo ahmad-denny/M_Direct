@@ -37,6 +37,22 @@
             .filter-container { flex-direction: column; align-items: stretch;}
             input, select, .reset-btn, .tombol-back { width: 100%; max-width: none; }
         }
+        .button {
+          /* Makes it look like a button */
+          display: inline-block;
+          padding: 10px 20px;
+          background-color: #007bff; /* Blue background */
+          color: white; /* White text */
+          text-decoration: none; /* Removes the underline */
+          border-radius: 5px; /* Rounded corners */
+          border: none;
+          cursor: pointer;
+          text-align: center;
+        }
+        
+        .button:hover {
+          background-color: #0056b3; /* Darker blue on hover */
+        }        
     </style>
 </head>
 <body>
@@ -68,8 +84,7 @@
                 <option value="N">NOT Login DTD</option>
             </select>
             <button class="reset-btn" onclick="resetFilter()">Reset</button>
-            <button class="back-btn" onclick="https://bit.ly/AppRegionSumatera">Back</button>
-<!--            <a href="https://bit.ly/AppRegionSumatera" class="tombol-back">Back</a>-->
+            <button onclick="openPage()">Back</button>           
             <h3><p id="time-date"></p></h3>
         </div>
 
@@ -217,10 +232,14 @@
             // jika implementasi di atas menyebabkan data hilang. Namun, untuk file sederhana ini, diasumsikan cukup.
             location.reload(); // Solusi yang lebih aman untuk memuat ulang semua JavaScript
         }
+        function openPage() {
+            window.location.href = 'https://bit.ly/AppRegionSumatera';
+        }
     </script>
     
 </body>
 </html>
+
 
 
 
