@@ -270,6 +270,11 @@
         
             // 3. Render Chart
             const ctx = document.getElementById('performanceChart').getContext('2d');
+            // --- BAGIAN BARU UNTUK WARNA ACAK ---
+            const backgroundColors = labels.map(() => getRandomColor());
+            // Untuk warna garis tepi, kita bisa menggunakan warna yang sama untuk konsistensi
+            const borderColors = backgroundColors; 
+            // ------------------------------------            
             
             // Hancurkan chart lama jika ada
             if (myChart) {
@@ -283,8 +288,8 @@
                     datasets: [{
                         label: chartTitle,
                         data: dataPoints,
-                        backgroundColor: 'rgba(75, 192, 192, 0.6)',
-                        borderColor: 'rgba(75, 192, 192, 1)',
+                        backgroundColor: backgroundColors,
+                        borderColor: borderColors,
                         borderWidth: 1
                     }]
                 },
@@ -308,10 +313,21 @@
                 }
             });
         }        
+
+        // Fungsi untuk menghasilkan warna heksadesimal acak
+        function getRandomColor() {
+            const letters = '0123456789ABCDEF';
+            let color = '#';
+            for (let i = 0; i < 6; i++) {
+                color += letters[Math.floor(Math.random() * 16)];
+            }
+            return color;
+        }
     </script>
     
 </body>
 </html>
+
 
 
 
