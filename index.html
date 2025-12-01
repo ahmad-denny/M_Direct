@@ -69,6 +69,11 @@
                 <option value="">Login DTD</option>
                 <option value="N">NOT Login DTD</option>
             </select>
+            <select id="chartTypeFilter" onchange="renderChart()">
+                <option value="bar">Bar Chart</option>
+                <option value="line">Line Chart</option>
+                <option value="pie">Pie Chart</option>
+            </select>            
             <button class="reset-btn" onclick="resetFilter()">Reset</button>
             <button class="back-btn" onclick="openPage()">Back</button>
             <h3><p id="time-date"></p></h3>
@@ -228,92 +233,82 @@
             window.location.href = 'https://bmi-apps.github.io/RegionSumatera/';
         }
 
-        // --- 5. Fungsi Render Chart ---
-        function renderChart() {
-            // Ambil nilai filter saat ini
-            const branchValue = document.getElementById('branchFilter').value;
-            const periodeValue = document.getElementById('periodeFilter').value;
-        
-            // 1. Filter Data
-            let filteredData = tableData.filter(row => {
-                const branchMatch = !branchValue || row['Branch'] === branchValue;
-                const periodeMatch = !periodeValue || row['Period'] === periodeValue;
-                return branchMatch && periodeMatch;
-            });
-        
-            // 2. Agregasi Data (Contoh: Total 'Login MTD' per 'Branch' yang difilter)
-            let branchSummary = {};
-            let metricKey = 'Login MTD'; // Asumsi ini adalah salah satu kolom data
-        
-            // Jika filter periode tidak dipilih, kita kelompokkan per periode
-            let groupByKey = branchValue ? 'Branch' : 'Period';
-            
-            // Jika filter branch dipilih, kita kelompokkan per position
-            if (branchValue) groupByKey = 'Position';
-            else if (periodeValue) groupByKey = 'Branch';
-            else groupByKey = 'Period'; // Default
-        
-            filteredData.forEach(row => {
-                const key = row[groupByKey];
-                const value = parseInt(row[metricKey]);
-                
-                if (!branchSummary[key]) {
-                    branchSummary[key] = { total: 0, count: 0 };
-                }
-                branchSummary[key].total += isNaN(value) ? 0 : value;
-                branchSummary[key].count++;
-            });
-        
-            const labels = Object.keys(branchSummary);
-            const dataPoints = labels.map(key => branchSummary[key].total);
-            const chartTitle = `Total ${metricKey} berdasarkan ${groupByKey}`;
-        
-            // 3. Render Chart
-            const ctx = document.getElementById('performanceChart').getContext('2d');
-            // --- BAGIAN BARU UNTUK WARNA ACAK ---
-            const backgroundColors = labels.map(() => getRandomColor());
-            // Untuk warna garis tepi, kita bisa menggunakan warna yang sama untuk konsistensi
-            const borderColors = backgroundColors; 
-            // ------------------------------------            
-            
-            // Hancurkan chart lama jika ada
-            if (myChart) {
-                myChart.destroy();
-            }
-        
-            myChart = new Chart(ctx, {
-                type: 'bar', // Jenis chart: bar, line, pie, dll.
-                data: {
-                    labels: labels,
-                    datasets: [{
-                        label: chartTitle,
-                        data: dataPoints,
-                        backgroundColor: backgroundColors,
-                        borderColor: borderColors,
-                        borderWidth: 1
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            title: {
-                                display: true,
-                                text: metricKey
-                            }
-                        }
-                    },
-                    plugins: {
-                        title: {
-                            display: true,
-                            text: chartTitle
-                        }
-                    }
-                }
-            });
-        }        
+// ... (Fungsi getRandomColor tetap sama) ...
 
+// --- 5. Fungsi Render Chart (FINAL MODIFIKASI) ---
+    function renderChart() {
+    // 0. Ambil Jenis Chart yang Dipilih
+    const selectedChartType = document.getElementById('chartTypeFilter').value;
+    
+    // 1. Ambil nilai filter Period dan Branch saat ini
+    const branchValue = document.getElementById('branchFilter').value;
+    const periodeValue = document.getElementById('periodeFilter').value;
+    
+    // ... (Logika Filter Data dan Agregasi Data tetap sama) ...
+    // ... (Dapatkan: labels, dataPoints, chartTitle, groupByKey, metricKey) ...
+
+    const labels = Object.keys(branchSummary);
+    const dataPoints = labels.map(key => branchSummary[key].total);
+    const chartTitle = `Total ${metricKey} berdasarkan ${groupByKey}`;
+
+    // Warna Acak (tetap digunakan)
+    const backgroundColors = labels.map(() => getRandomColor());
+    let borderColors = backgroundColors; 
+    
+    // Untuk Line Chart, biasanya kita hanya ingin satu warna solid
+    if (selectedChartType === 'line') {
+        borderColors = [getRandomColor()]; // Hanya satu warna untuk garis
+    }
+
+    // 3. Render Chart
+    const ctx = document.getElementById('performanceChart').getContext('2d');
+    
+    if (myChart) {
+        myChart.destroy();
+    }
+
+    myChart = new Chart(ctx, {
+        // Gunakan nilai dari dropdown sebagai jenis chart
+        type: selectedChartType, 
+        data: {
+            labels: labels,
+            datasets: [{
+                label: chartTitle,
+                data: dataPoints,
+                backgroundColor: backgroundColors, 
+                borderColor: borderColors,
+                borderWidth: selectedChartType === 'line' ? 3 : 1, // Garis lebih tebal untuk Line Chart
+                // Sembunyikan titik koneksi untuk Pie Chart
+                pointRadius: selectedChartType === 'line' ? 5 : 0, 
+                // Line Chart dan Pie Chart tidak mengisi area
+                fill: selectedChartType === 'line' ? false : true, 
+            }]
+        },
+        options: {
+            responsive: true,
+            // Sembunyikan skala Y dan X untuk Pie Chart karena tidak relevan
+            scales: {
+                y: {
+                    display: selectedChartType !== 'pie',
+                    beginAtZero: true,
+                    title: {
+                        display: true,
+                        text: selectedChartType !== 'pie' ? metricKey : ''
+                    }
+                },
+                x: {
+                    display: selectedChartType !== 'pie',
+                }
+            },
+            plugins: {
+                title: {
+                    display: true,
+                    text: chartTitle
+                }
+            }
+            }
+            });
+        }
         // Fungsi untuk menghasilkan warna heksadesimal acak
         function getRandomColor() {
             const letters = '0123456789ABCDEF';
@@ -327,6 +322,7 @@
     
 </body>
 </html>
+
 
 
 
