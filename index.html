@@ -238,6 +238,7 @@
    // --- 5. Fungsi Render Chart ---
     function renderChart() {
     // Ambil nilai filter saat ini
+    const selectedChartType = document.getElementById('chartTypeFilter').value;
     const branchValue = document.getElementById('branchFilter').value;
     const periodeValue = document.getElementById('periodeFilter').value;
 
@@ -274,7 +275,15 @@
     const labels = Object.keys(branchSummary);
     const dataPoints = labels.map(key => branchSummary[key].total);
     const chartTitle = `Total ${metricKey} berdasarkan ${groupByKey}`;
-
+    // Warna Acak (tetap digunakan)
+    const backgroundColors = labels.map(() => getRandomColor());
+    let borderColors = backgroundColors; 
+    
+    // Untuk Line Chart, biasanya kita hanya ingin satu warna solid
+    if (selectedChartType === 'line') {
+        borderColors = [getRandomColor()]; // Hanya satu warna untuk garis
+    }
+        
     // 3. Render Chart
     const ctx = document.getElementById('performanceChart').getContext('2d');
     
@@ -284,26 +293,35 @@
     }
 
     myChart = new Chart(ctx, {
-        type: 'bar', // Jenis chart: bar, line, pie, dll.
+        type: selectedChartType, // Jenis chart: bar, line, pie, dll.
         data: {
             labels: labels,
             datasets: [{
                 label: chartTitle,
                 data: dataPoints,
-                backgroundColor: 'rgba(75, 192, 192, 0.6)',
-                borderColor: 'rgba(75, 192, 192, 1)',
-                borderWidth: 1
+                backgroundColor: backgroundColors, 
+                borderColor: borderColors,
+                borderWidth: selectedChartType === 'line' ? 3 : 1, // Garis lebih tebal untuk Line Chart
+                // Sembunyikan titik koneksi untuk Pie Chart
+                pointRadius: selectedChartType === 'line' ? 5 : 0, 
+                // Line Chart dan Pie Chart tidak mengisi area
+                fill: selectedChartType === 'line' ? false : true,
             }]
         },
         options: {
             responsive: true,
+            // Sembunyikan skala Y dan X untuk Pie Chart karena tidak relevan
             scales: {
                 y: {
+                    display: selectedChartType !== 'pie',
                     beginAtZero: true,
                     title: {
                         display: true,
-                        text: metricKey
+                        text: selectedChartType !== 'pie' ? metricKey : ''
                     }
+                },
+                x: {
+                    display: selectedChartType !== 'pie',
                 }
             },
             plugins: {
@@ -328,6 +346,7 @@
     
 </body>
 </html>
+
 
 
 
