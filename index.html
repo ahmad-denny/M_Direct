@@ -51,6 +51,64 @@
     </style>
 </head>
 
+<body>
+    <div class="container">
+        <h2>M-Direct Performance Region Sumatera</h2>
+        
+        <div class="filter-container">
+            <input type="text" id="searchBox" placeholder="Name or Marketing Code..." onkeyup="filterAndSearchTable()">
+            <select id="positionFilter" onchange="filterAndSearchTable()">
+                <option value="">All Position</option>
+                <option value="RM">RM</option>
+                <option value="RM C">RM Consumer</option>
+                <option value="RM P">RM Prioritas</option>
+                <option value="RM F">RM Funding & Hajj</option>
+                <option value="RM S">RM SME</option>
+                <option value="CS">CS</option>
+            </select>
+            <select id="branchFilter" onchange="filterAndSearchTable()">
+                <option value="">All Branch</option>
+            </select>
+            <select id="periodeFilter" onchange="filterAndSearchTable()">
+                <option value="">All Period</option>
+            </select>
+            <select id="zeroMTDFilter" onchange="filterAndSearchTable()">
+                <option value="">Login MTD</option>
+                <option value="0">NOT Login MTD</option>
+            </select>
+            <select id="zeroDTDFilter" onchange="filterAndSearchTable()">
+                <option value="">Login DTD</option>
+                <option value="N">NOT Login DTD</option>
+            </select>
+            <!--
+            <select id="chartTypeFilter" onchange="renderChart()">
+                <option value="bar">Bar Chart</option>
+                <option value="line">Line Chart</option>
+                <option value="pie">Pie Chart</option>
+            </select>            
+            -->
+            <button class="reset-btn" onclick="resetFilter()">Reset</button>
+            <button class="back-btn" onclick="openPage()">Back</button>
+            <button class="print-btn" onclick="printTable()">Print / Save PDF</button>
+            <!--           
+            <h3><p id="time-date"></p></h3>
+            -->
+        </div>
+        <!--
+        <div style="width: 95%; margin: 20px auto;">
+            <canvas id="performanceChart"></canvas>
+        </div>
+        -->
+        <div class="table-container">
+            <table id="dataTable">
+                <thead>
+                    <tr id="tableHead"></tr>
+                </thead>
+                <tbody id="tableBody"></tbody>
+            </table>
+        </div>
+    </div>    
+
     <script>
         let tableData = [];
         let myChart;
@@ -301,66 +359,10 @@
             return color;
         }
     </script>
-
-<body>
-    <div class="container">
-        <h2>M-Direct Performance Region Sumatera</h2>
-        
-        <div class="filter-container">
-            <input type="text" id="searchBox" placeholder="Name or Marketing Code..." onkeyup="filterAndSearchTable()">
-            <select id="positionFilter" onchange="filterAndSearchTable()">
-                <option value="">All Position</option>
-                <option value="RM">RM</option>
-                <option value="RM C">RM Consumer</option>
-                <option value="RM P">RM Prioritas</option>
-                <option value="RM F">RM Funding & Hajj</option>
-                <option value="RM S">RM SME</option>
-                <option value="CS">CS</option>
-            </select>
-            <select id="branchFilter" onchange="filterAndSearchTable()">
-                <option value="">All Branch</option>
-            </select>
-            <select id="periodeFilter" onchange="filterAndSearchTable()">
-                <option value="">All Period</option>
-            </select>
-            <select id="zeroMTDFilter" onchange="filterAndSearchTable()">
-                <option value="">Login MTD</option>
-                <option value="0">NOT Login MTD</option>
-            </select>
-            <select id="zeroDTDFilter" onchange="filterAndSearchTable()">
-                <option value="">Login DTD</option>
-                <option value="N">NOT Login DTD</option>
-            </select>
-            <!--
-            <select id="chartTypeFilter" onchange="renderChart()">
-                <option value="bar">Bar Chart</option>
-                <option value="line">Line Chart</option>
-                <option value="pie">Pie Chart</option>
-            </select>            
-            -->
-            <button class="reset-btn" onclick="resetFilter()">Reset</button>
-            <button class="back-btn" onclick="openPage()">Back</button>
-            <button class="print-btn" onclick="printTable()">Print / Save PDF</button>
-            <!--           
-            <h3><p id="time-date"></p></h3>
-            -->
-        </div>
-        <!--
-        <div style="width: 95%; margin: 20px auto;">
-            <canvas id="performanceChart"></canvas>
-        </div>
-        -->
-        <div class="table-container">
-            <table id="dataTable">
-                <thead>
-                    <tr id="tableHead"></tr>
-                </thead>
-                <tbody id="tableBody"></tbody>
-            </table>
-        </div>
-    </div>    
+    
 </body>
 </html>
+
 
 
 
