@@ -82,6 +82,11 @@
         .back-btn { background: #dc3545; }
         .back-btn:hover { background: #c82333; }
         .print-btn { background: #6f42c1; }
+        .print-btn:hover { background: #5a32a3; }
+        
+        /* Gaya Tombol Export Baru */
+        .export-btn { background: #f39c12; }
+        .export-btn:hover { background: #e67e22; }
 
         /* Tabel */
         .table-container {
@@ -135,7 +140,7 @@
                 flex-direction: column;
                 align-items: stretch;
             }
-            input, select, .reset-btn, .back-btn, .print-btn {
+            input, select, .btn {
                 width: 100%;
                 max-width: none;
             }
@@ -181,6 +186,7 @@
             <button class="btn reset-btn" onclick="resetFilter()">Reset</button>
             <button class="btn back-btn" onclick="openPage()">Back</button>
             <button class="btn print-btn" onclick="printTable()">Print</button>
+            <button class="btn export-btn" onclick="exportToExcel()">Export XLS</button>
 
             <h3 id="time-date"></h3> 
 
@@ -199,16 +205,6 @@
     <script>
         let tableData = [];
         let myChart;
-
-        // Update Waktu
-//        function updateTimeDate() {
-//            const now = new Date();
-//            const time = now.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', second: "2-digit" });
-//            const date = now.toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'short', day: 'numeric' });
-//            document.getElementById("time-date").innerHTML = `${date} | ${time}`;
-//        }
-//        setInterval(updateTimeDate, 1000);
-//        updateTimeDate();
 
         // Load Data
         fetch('Dataset.json')
@@ -317,20 +313,30 @@
             window.location.href = 'https://bmi-apps.github.io/regionsumatera/';
         }
 
-        function getRandomColor() {
-            return '#' + Math.floor(Math.random()*16777215).toString(16);
+        // FUNGSI EXPORT XLS
+        function exportToExcel() {
+            const table = document.getElementById("dataTable");
+            
+            // Membuat worksheet dari tabel
+            // SheetJS secara otomatis akan mengabaikan baris yang memiliki style display:none
+            const ws = XLSX.utils.table_to_sheet(table);
+
+            // Membuat workbook baru
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, "Performance");
+
+            // Mendapatkan tanggal hari ini untuk nama file
+            const today = new Date().toISOString().split('T')[0];
+            const fileName = `Performance_Sumatera_${today}.xlsx`;
+
+            // Menulis file
+            XLSX.writeFile(wb, fileName);
         }
 
         function renderChart() {
             const chartCanvas = document.getElementById('performanceChart');
-            if (!chartCanvas) return; // Menghindari error jika canvas di-comment
-
-            // ... sisa logika chart Anda ...
+            if (!chartCanvas) return;
         }
     </script>
 </body>
 </html>
-
-
-
-
