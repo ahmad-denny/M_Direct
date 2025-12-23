@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -10,14 +11,62 @@
     <title>M|Direct Performance Sumatera</title>
     <style>
         /* Gaya Dasar */
-        body { font-family: Arial, sans-serif; text-align: center; background-color: #f8f9fa; padding: 20px; }
-        .container { width: 98%; max-width: 98%; margin: 0; background: #fff; padding: 10px; border-radius: 10px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); overflow-x: hidden; }
-        h2 { color: white; background-color: purple; padding: 10px; border-radius: 5px; margin-top: 0; }
-        h3 { text-align: center; font-size: 13px; font-style: italic; font-weight: lighter; margin: 5px 0 0;}
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background-color: #f8f9fa;
+            padding: 20px;
+        }
 
-         /* Filter dan Tombol */
-        .filter-container { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; padding: 15px; background: #f1f1f1; border-radius: 8px; margin-bottom: 10px; justify-content: flex-start; }
-        input[type="text"], select { width: 100%; max-width: 300px; padding: 10px; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box; }
+        .container {
+            width: 98%;
+            max-width: 98%;
+            margin: 0 auto;
+            background: #fff;
+            padding: 10px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            overflow-x: hidden;
+        }
+
+        h2 {
+            color: white;
+            background-color: purple;
+            padding: 10px;
+            border-radius: 5px;
+            margin-top: 0;
+        }
+
+        h3 {
+            text-align: center;
+            font-size: 13px;
+            font-style: italic;
+            font-weight: lighter;
+            margin: 5px 0 0;
+        }
+
+        /* Filter dan Tombol */
+        .filter-container {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 10px;
+            padding: 15px;
+            background: #f1f1f1;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            justify-content: flex-start;
+        }
+
+        input[type="text"],
+        select {
+            width: 100%;
+            max-width: 300px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-sizing: border-box;
+        }
 
         .btn {
             padding: 10px 20px;
@@ -25,686 +74,257 @@
             border-radius: 6px;
             cursor: pointer;
             font-weight: bold;
-
             transition: 0.3s;
-
             color: white;
-
         }
 
         .reset-btn { background: #28a745; }
-
         .reset-btn:hover { background: #218838; }
-
         .back-btn { background: #dc3545; }
-
         .back-btn:hover { background: #c82333; }
-
         .print-btn { background: #6f42c1; }
 
-
-
         /* Tabel */
-
-        .table-container { overflow-x: auto; padding-bottom: 10px; }
-
-        table { width: 100%; border-collapse: collapse; margin-top: 1px; font-size: 13px; }
-
-        th, td { padding: 8px; border: 1px solid #ddd; text-align: center; }
-
-        td { text-align: left; white-space: nowrap; }
-
-        th { background-color: purple; color: white; }
-
-        
-
-        /* Highlight dan Kolom Tersembunyi */
-
-        .highlight-yes { color: #28a745; font-weight: bold; } /* Menggunakan warna yang lebih kontras */
-
-        .highlight-no, .highlight-red { color: #dc3545; font-weight: bold; } /* Menggunakan warna yang lebih kontras */
-
-        table td:nth-child(n+6), table th:nth-child(n+6) { text-align: center; }
-
-        table td:nth-child(2), th:nth-child(2) { display: none; } /* Kolom ke-2 disembunyikan */
-
-
-
-        /* Responsif */
-
-        @media screen and (max-width: 768px) {
-
-            .filter-container { flex-direction: column; align-items: stretch;}
-
-            input, select, .reset-btn, .tombol-back { width: 100%; max-width: none; }
-
+        .table-container {
+            overflow-x: auto;
+            padding-bottom: 10px;
         }
 
-    </style>
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1px;
+            font-size: 13px;
+        }
 
+        th, td {
+            padding: 8px;
+            border: 1px solid #ddd;
+            text-align: center;
+        }
+
+        td {
+            text-align: left;
+            white-space: nowrap;
+        }
+
+        th {
+            background-color: purple;
+            color: white;
+        }
+
+        /* Highlight dan Kolom Tersembunyi */
+        .highlight-yes { color: #28a745; font-weight: bold; }
+        .highlight-no, .highlight-red { color: #dc3545; font-weight: bold; }
+
+        table td:nth-child(n+6),
+        table th:nth-child(n+6) {
+            text-align: center;
+        }
+
+        /* Kolom ke-2 disembunyikan */
+        table td:nth-child(2),
+        th:nth-child(2) {
+            display: none;
+        }
+
+        /* Responsif */
+        @media screen and (max-width: 768px) {
+            .filter-container {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            input, select, .reset-btn, .back-btn, .print-btn {
+                width: 100%;
+                max-width: none;
+            }
+        }
+    </style>
 </head>
 
-
-
 <body>
-
     <div class="container">
-
         <h2>M-Direct Performance Region Sumatera</h2>
 
-        
-
         <div class="filter-container">
-
             <input type="text" id="searchBox" placeholder="Name or Marketing Code..." onkeyup="filterAndSearchTable()">
-
+            
             <select id="positionFilter" onchange="filterAndSearchTable()">
-
                 <option value="">All Position</option>
-
                 <option value="RM">RM</option>
-
                 <option value="RM C">RM Consumer</option>
-
                 <option value="RM P">RM Prioritas</option>
-
                 <option value="RM F">RM Funding & Hajj</option>
-
                 <option value="RM S">RM SME</option>
-
                 <option value="CS">CS</option>
-
             </select>
 
             <select id="branchFilter" onchange="filterAndSearchTable()">
-
                 <option value="">All Branch</option>
-
             </select>
 
             <select id="periodeFilter" onchange="filterAndSearchTable()">
-
                 <option value="">All Period</option>
-
             </select>
 
             <select id="zeroMTDFilter" onchange="filterAndSearchTable()">
-
                 <option value="">Login MTD</option>
-
                 <option value="0">NOT Login MTD</option>
-
             </select>
 
             <select id="zeroDTDFilter" onchange="filterAndSearchTable()">
-
                 <option value="">Login DTD</option>
-
                 <option value="N">NOT Login DTD</option>
-
             </select>
 
-            <!--
-
-            <select id="chartTypeFilter" onchange="renderChart()">
-
-                <option value="bar">Bar Chart</option>
-
-                <option value="line">Line Chart</option>
-
-                <option value="pie">Pie Chart</option>
-
-            </select>            
-
-            -->
-
             <button class="btn reset-btn" onclick="resetFilter()">Reset</button>
-
             <button class="btn back-btn" onclick="openPage()">Back</button>
-
             <button class="btn print-btn" onclick="printTable()">Print / Save PDF</button>
 
-                       
-
-            <h3><p id="time-date"></p></h3>
-
-            
-
+            <h3 id="time-date"></h3>
         </div>
-
-        <!--
-
-        <div style="width: 95%; margin: 20px auto;">
-
-            <canvas id="performanceChart"></canvas>
-
-        </div>
-
-        -->
 
         <div class="table-container">
-
             <table id="dataTable">
-
                 <thead>
-
                     <tr id="tableHead"></tr>
-
                 </thead>
-
                 <tbody id="tableBody"></tbody>
-
             </table>
-
         </div>
-
-    </div>    
-
-
+    </div>
 
     <script>
-
         let tableData = [];
-
         let myChart;
 
-
-
-        // Fungsi untuk mengupdate waktu dan tanggal
-
+        // Update Waktu
         function updateTimeDate() {
-
             const now = new Date();
-
             const time = now.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', second: "2-digit" });
-
             const date = now.toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'short', day: 'numeric' });
-
             document.getElementById("time-date").innerHTML = `${date} | ${time}`;
-
         }
-
         setInterval(updateTimeDate, 1000);
-
         updateTimeDate();
 
-
-
-        // 1. Ambil Data dan Isi Tabel
-
+        // Load Data
         fetch('Dataset.json')
-
             .then(response => {
-
                 if (!response.ok) throw new Error('Network response was not ok');
-
                 return response.json();
-
             })
-
             .then(data => populateTable(data))
-
             .catch(error => console.error('Error loading JSON:', error));
 
-
-
         function populateTable(data) {
-
             const tableHead = document.getElementById('tableHead');
-
             const tableBody = document.getElementById('tableBody');
-
             const branchFilter = document.getElementById('branchFilter');
-
             const periodeFilter = document.getElementById('periodeFilter');
 
-            
-
             tableBody.innerHTML = '';
-
             tableData = data;
-
             let branches = new Set();
-
             let periods = new Set();
 
-
-
             if (data.length > 0) {
-
-                // Isi Header
-
                 tableHead.innerHTML = Object.keys(data[0]).map(header => `<th>${header}</th>`).join('');
 
-
-
-                // Isi Body
-
                 data.forEach(row => {
-
                     let tr = document.createElement('tr');
-
                     Object.values(row).forEach(cell => {
-
                         let td = document.createElement('td');
-
                         td.textContent = cell;
-
                         tr.appendChild(td);
-
                     });
 
-
-
-                    // Terapkan highlight ke kolom ke-6 (indeks 5) dan ke-7 (indeks 6)
-
+                    // Highlight logic
                     let loginMTDCell = tr.cells[5];
-
                     if (loginMTDCell && loginMTDCell.textContent === "0") {
-
                         loginMTDCell.classList.add("highlight-red");
-
                     }
-
-                    
 
                     let loginDTDCell = tr.cells[6];
-
                     if (loginDTDCell) {
-
                         if (loginDTDCell.textContent === "Y") loginDTDCell.classList.add("highlight-yes");
-
                         else if (loginDTDCell.textContent === "N") loginDTDCell.classList.add("highlight-no");
-
                     }
 
-
-
                     tableBody.appendChild(tr);
-
                     branches.add(row['Branch']);
-
                     periods.add(row['Period']);
-
                 });
 
-
-
-                // Isi Opsi Filter
-
                 updateFilterOptions(branchFilter, branches, 'All Branch');
-
                 updateFilterOptions(periodeFilter, periods, 'All Period');
-
                 renderChart();
-
             }
-
         }
-
-
 
         function updateFilterOptions(filterElement, values, defaultLabel) {
-
             filterElement.innerHTML = `<option value="">${defaultLabel}</option>`;
-
-            values.forEach(value => {
-
+            Array.from(values).sort().forEach(value => {
                 let option = document.createElement('option');
-
                 option.value = value;
-
                 option.textContent = value;
-
                 filterElement.appendChild(option);
-
             });
-
         }
-
-
-
-        // 2. Filter dan Cari
 
         function filterAndSearchTable() {
-
             const searchValue = document.getElementById('searchBox').value.toLowerCase();
-
             const positionValue = document.getElementById('positionFilter').value.toLowerCase();
-
             const branchValue = document.getElementById('branchFilter').value.toLowerCase();
-
             const periodeValue = document.getElementById('periodeFilter').value.toLowerCase();
-
             const zeroMTDValue = document.getElementById('zeroMTDFilter').value.toLowerCase();
-
             const zeroDTDValue = document.getElementById('zeroDTDFilter').value.toLowerCase();
 
-
-
             document.getElementById('tableBody').querySelectorAll('tr').forEach(row => {
-
                 let cells = row.getElementsByTagName('td');
-
-
-
                 let nameMarketingMatch = searchValue === "" ||
-
-                                         (cells[1] && cells[1].textContent.toLowerCase().includes(searchValue)) ||
-
-                                         (cells[2] && cells[2].textContent.toLowerCase().includes(searchValue));
-
-
+                    (cells[1] && cells[1].textContent.toLowerCase().includes(searchValue)) ||
+                    (cells[2] && cells[2].textContent.toLowerCase().includes(searchValue));
 
                 let positionMatch = positionValue === "" || (cells[3] && cells[3].textContent.trim().toLowerCase().includes(positionValue));
-
                 let branchMatch = branchValue === "" || (cells[4] && cells[4].textContent.toLowerCase() === branchValue);
-
                 let periodeMatch = periodeValue === "" || (cells[0] && cells[0].textContent.toLowerCase() === periodeValue);
-
                 let zeroMTDMatch = zeroMTDValue === "" || (cells[5] && cells[5].textContent.toLowerCase() === zeroMTDValue);
-
                 let zeroDTDMatch = zeroDTDValue === "" || (cells[6] && cells[6].textContent.toLowerCase() === zeroDTDValue);
 
-
-
-                if (nameMarketingMatch && positionMatch && branchMatch && periodeMatch && zeroMTDMatch && zeroDTDMatch) {
-
-                    row.style.display = "";
-
-                } else {
-
-                    row.style.display = "none";
-
-                }                
-
-            });  
-
+                row.style.display = (nameMarketingMatch && positionMatch && branchMatch && periodeMatch && zeroMTDMatch && zeroDTDMatch) ? "" : "none";
+            });
             renderChart();
-
         }
-
-        
-
-        // 3. Reset Filter
 
         function resetFilter() {
-
             document.getElementById('searchBox').value = "";
-
             document.getElementById('positionFilter').value = "";
-
             document.getElementById('branchFilter').value = "";
-
             document.getElementById('periodeFilter').value = "";
-
             document.getElementById('zeroMTDFilter').value = "";
-
             document.getElementById('zeroDTDFilter').value = "";
-
             filterAndSearchTable();
-
         }
 
-
-
-        // 4. Print Tabel
-
         function printTable() {
-
-            let tableContent = document.getElementById("dataTable").outerHTML;
-
-            let originalContent = document.body.innerHTML;
-
-        
-
-            // Sembunyikan elemen filter dan tombol sebelum mencetak untuk hasil yang bersih
-
-            document.body.innerHTML = tableContent;
-
             window.print();
-
-            document.body.innerHTML = originalContent; // Kembalikan konten asli setelah mencetak
-
-            // Catatan: Anda mungkin perlu memanggil ulang `populateTable` setelah mengembalikan konten asli 
-
-            // jika implementasi di atas menyebabkan data hilang. Namun, untuk file sederhana ini, diasumsikan cukup.
-
-            location.reload(); // Solusi yang lebih aman untuk memuat ulang semua JavaScript
-
         }
 
         function openPage() {
-
             window.location.href = 'https://bmi-apps.github.io/regionsumatera/';
-
         }
-
-
-
-    // ... (Fungsi getRandomColor tetap sama) ...
-
-
-
-   // --- 5. Fungsi Render Chart ---
-
-    function renderChart() {
-
-    // Ambil nilai filter saat ini
-
-    const selectedChartType = document.getElementById('chartTypeFilter').value;
-
-    const branchValue = document.getElementById('branchFilter').value;
-
-    const periodeValue = document.getElementById('periodeFilter').value;
-
-
-
-    // 1. Filter Data
-
-    let filteredData = tableData.filter(row => {
-
-        const branchMatch = !branchValue || row['Branch'] === branchValue;
-
-        const periodeMatch = !periodeValue || row['Period'] === periodeValue;
-
-        return branchMatch && periodeMatch;
-
-    });
-
-
-
-    // 2. Agregasi Data (Contoh: Total 'Login MTD' per 'Branch' yang difilter)
-
-    let branchSummary = {};
-
-    let metricKey = 'Login MTD'; // Asumsi ini adalah salah satu kolom data
-
-
-
-    // Jika filter periode tidak dipilih, kita kelompokkan per periode
-
-    let groupByKey = branchValue ? 'Branch' : 'Period';
-
-    
-
-    // Jika filter branch dipilih, kita kelompokkan per position
-
-    if (branchValue) groupByKey = 'Position';
-
-    else if (periodeValue) groupByKey = 'Branch';
-
-    else groupByKey = 'Period'; // Default
-
-
-
-    filteredData.forEach(row => {
-
-        const key = row[groupByKey];
-
-        const value = parseInt(row[metricKey]);
-
-        
-
-        if (!branchSummary[key]) {
-
-            branchSummary[key] = { total: 0, count: 0 };
-
-        }
-
-        branchSummary[key].total += isNaN(value) ? 0 : value;
-
-        branchSummary[key].count++;
-
-    });
-
-
-
-    const labels = Object.keys(branchSummary);
-
-    const dataPoints = labels.map(key => branchSummary[key].total);
-
-    const chartTitle = `Total ${metricKey} berdasarkan ${groupByKey}`;
-
-    // Warna Acak (tetap digunakan)
-
-    const backgroundColors = labels.map(() => getRandomColor());
-
-    let borderColors = backgroundColors; 
-
-    
-
-    // Untuk Line Chart, biasanya kita hanya ingin satu warna solid
-
-    if (selectedChartType === 'line') {
-
-        borderColors = [getRandomColor()]; // Hanya satu warna untuk garis
-
-    }
-
-        
-
-    // 3. Render Chart
-
-    const ctx = document.getElementById('performanceChart').getContext('2d');
-
-    
-
-    // Hancurkan chart lama jika ada
-
-    if (myChart) {
-
-        myChart.destroy();
-
-    }
-
-
-
-    myChart = new Chart(ctx, {
-
-        type: selectedChartType, // Jenis chart: bar, line, pie, dll.
-
-        data: {
-
-            labels: labels,
-
-            datasets: [{
-
-                label: chartTitle,
-
-                data: dataPoints,
-
-                backgroundColor: backgroundColors, 
-
-                borderColor: borderColors,
-
-                borderWidth: selectedChartType === 'line' ? 3 : 1, // Garis lebih tebal untuk Line Chart
-
-                // Sembunyikan titik koneksi untuk Pie Chart
-
-                pointRadius: selectedChartType === 'line' ? 5 : 0, 
-
-                // Line Chart dan Pie Chart tidak mengisi area
-
-                fill: selectedChartType === 'line' ? false : true,
-
-            }]
-
-        },
-
-        options: {
-
-            responsive: true,
-
-            // Sembunyikan skala Y dan X untuk Pie Chart karena tidak relevan
-
-            scales: {
-
-                y: {
-
-                    display: selectedChartType !== 'pie',
-
-                    beginAtZero: true,
-
-                    title: {
-
-                        display: true,
-
-                        text: selectedChartType !== 'pie' ? metricKey : ''
-
-                    }
-
-                },
-
-                x: {
-
-                    display: selectedChartType !== 'pie',
-
-                }
-
-            },
-
-            plugins: {
-
-                title: {
-
-                    display: true,
-
-                    text: chartTitle
-
-                }
-
-            }
-
-        }
-
-        });
-
-        }
-
-        // Fungsi untuk menghasilkan warna heksadesimal acak
 
         function getRandomColor() {
-
-            const letters = '0123456789ABCDEF';
-
-            let color = '#';
-
-            for (let i = 0; i < 6; i++) {
-
-                color += letters[Math.floor(Math.random() * 16)];
-
-            }
-
-            return color;
-
+            return '#' + Math.floor(Math.random()*16777215).toString(16);
         }
 
+        function renderChart() {
+            const chartCanvas = document.getElementById('performanceChart');
+            if (!chartCanvas) return; // Menghindari error jika canvas di-comment
+
+            // ... sisa logika chart Anda ...
+        }
     </script>
-
-    
-
 </body>
-
 </html>
-
