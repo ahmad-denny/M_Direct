@@ -316,23 +316,49 @@
         // FUNGSI EXPORT XLS
         function exportToExcel() {
             const table = document.getElementById("dataTable");
+            const rows = Array.from(table.rows);
             
-            // Membuat worksheet dari tabel
-            // SheetJS secara otomatis akan mengabaikan baris yang memiliki style display:none
-            const ws = XLSX.utils.table_to_sheet(table);
-
-            // Membuat workbook baru
+            // 1. Ambil data yang terlihat saja (Baris & Kolom yang tidak di-hide)
+            const data = rows.filter(row => row.style.display !== "none")
+                .map(row => {
+                    return Array.from(row.cells)
+                        .filter(cell => {
+                            const style = window.getComputedStyle(cell);
+                            return style.display !== "none";
+                        })
+                        .map(cell => cell.textContent.trim());
+                });
+        
+            if (data.length === 0) {
+                alert("Tidak ada data untuk di-export!");
+                return;
+            }
+        
+            // 2. Membuat Worksheet dari Array of Arrays
+            const ws = XLSX.utils.aoa_to_sheet(data);
+        
+            // 3. Logika Auto-Fit Lebar Kolom
+            // Menghitung jumlah karakter terpanjang di setiap kolom untuk menentukan lebar
+            const colWidths = data[0].map((_, colIndex) => {
+                let maxLen = Math.max(
+                    ...data.map(row => (row[colIndex] ? row[colIndex].toString().length : 0))
+                );
+                return { wch: maxLen + 3 }; // Tambah padding 3 karakter agar tidak mepet
+            });
+            ws['!cols'] = colWidths;
+        
+            // 4. Membuat Workbook
             const wb = XLSX.utils.book_new();
             XLSX.utils.book_append_sheet(wb, ws, "Performance");
-
-            // Mendapatkan tanggal hari ini untuk nama file
-            const today = new Date().toISOString().split('T')[0];
-            const fileName = `Performance_Sumatera_${today}.xlsx`;
-
-            // Menulis file
+        
+            // 5. Penamaan File (Format: Performance_Sumatera_23-12-2025.xlsx)
+            const now = new Date();
+            const dateStr = now.toLocaleDateString('id-ID').replace(/\//g, '-');
+            const fileName = `Performance_Sumatera_${dateStr}.xlsx`;
+        
+            // 6. Proses Download
             XLSX.writeFile(wb, fileName);
         }
-
         function renderChart() {
             const chartCanvas = document.getElementById('performanceChart');
             if (!chartCanvas) return;
@@ -340,3 +366,4 @@
     </script>
 </body>
 </html>
+
