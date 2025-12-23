@@ -43,9 +43,13 @@
             margin-bottom: 20px;
             border: 1px solid #e9ecef;
         }
-        input[type="text"], select { width: 100%; max-width: 200px; 
-                                    padding: 8px; border: 1px solid #ccc; 
-                                    border-radius: 5px; }
+        input[type="text"], select { 
+            width: 100%; 
+            max-width: 200px; 
+            padding: 8px; 
+            border: 1px solid #ccc; 
+            border-radius: 5px; 
+        }
         
         .btn {
             padding: 10px 20px;
@@ -68,21 +72,18 @@
         th { background-color: purple; color: white; cursor: pointer; position: relative; white-space: nowrap; }
         th:hover { background-color: #6a006a; }
 
-        /* Styling Ikon Sortir */
         .sort-icon { margin-left: 8px; font-size: 12px; transition: 0.3s; }
         
-        /* Highlight Colors */
         .highlight-yes { color: #28a745; font-weight: bold; }
         .highlight-no, .highlight-red { color: #dc3545; font-weight: bold; }
         
-        /* Sembunyikan kolom ke-2 (Marketing Code) sesuai request awal */
+        /* Sembunyikan kolom ke-2 (Marketing Code) */
         table td:nth-child(2), th:nth-child(2) { display: none; }
 
         @media screen and (max-width: 768px) {
             .filter-container { flex-direction: column; align-items: stretch;}
             input, select, .btn { width: 100%; max-width: none; } 
         }
-        
     </style>
 </head>
 
@@ -103,9 +104,6 @@
             <button class="btn reset-btn" onclick="resetFilter()">Reset</button>
             <button class="btn back-btn" onclick="openPage()">Back</button>
             <button class="btn print-btn" onclick="window.print()">Print</button>
-            <!--
-            <p id="time-date" style="font-size: 12px; margin-left: auto;"></p>
-            -->
         </div>
 
         <div class="table-container">
@@ -120,14 +118,15 @@
 
     <script>
         let tableData = [];
-        let sortStates = {}; // Menyimpan status sort tiap kolom (asc/desc)
+        let sortStates = {};
 
-        // Update Waktu
-        function updateTime() {
-            const now = new Date();
-            document.getElementById("time-date").innerHTML = now.toLocaleString('id-ID');
-        }
-        setInterval(updateTime, 1000);
+        // Mapping bulan untuk pengurutan kalender
+        const monthMap = {
+            "Januari": 1, "Februari": 2, "Maret": 3, "April": 4, "Mei": 5, "Juni": 6,
+            "Juli": 7, "Agustus": 8, "September": 9, "Oktober": 10, "November": 11, "Desember": 12,
+            "Jan": 1, "Feb": 2, "Mar": 3, "Apr": 4, "May": 5, "Jun": 6,
+            "Jul": 7, "Aug": 8, "Sep": 9, "Oct": 10, "Nov": 11, "Dec": 12
+        };
 
         // Load Data
         fetch('Dataset.json')
@@ -138,10 +137,10 @@
             }).catch(err => console.error("Gagal memuat data:", err));
 
         function initTable() {
+            if (tableData.length === 0) return;
             const headers = Object.keys(tableData[0]);
             const tableHead = document.getElementById('tableHead');
             
-            // Buat header dengan ikon panah netral ↕
             tableHead.innerHTML = headers.map((h, i) => `
                 <th onclick="sortTable(${i}, '${h}')">
                     ${h} <span id="sort-icon-${i}" class="sort-icon">↕</span>
@@ -168,15 +167,11 @@
         }
 
         function sortTable(index, key) {
-            // Toggle status: default -> asc -> desc -> asc
             const currentState = sortStates[index] || 'none';
             let newState = (currentState === 'asc') ? 'desc' : 'asc';
-            sortStates = { [index]: newState }; // Reset sort lain, aktifkan yang ini
+            sortStates = { [index]: newState };
 
-            // Reset semua ikon ke netral
             document.querySelectorAll('.sort-icon').forEach(el => el.innerHTML = '↕');
-            
-            // Update ikon kolom terpilih
             const icon = document.getElementById(`sort-icon-${index}`);
             icon.innerHTML = (newState === 'asc') ? '▲' : '▼';
 
@@ -184,26 +179,42 @@
                 let valA = a[key];
                 let valB = b[key];
 
-                // Cek jika angka
-                if (!isNaN(valA) && !isNaN(valB)) {
+                // Logika khusus jika kolom adalah "Period"
+                if (key.toLowerCase() === 'period' || key.toLowerCase() === 'periode') {
+                    let orderA = monthMap[valA] || 99;
+                    let orderB = monthMap[valB] || 99;
+                    return newState === 'asc' ? orderA - orderB : orderB - orderA;
+                }
+
+                // Cek jika nilai adalah angka
+                if (!isNaN(valA) && !isNaN(valB) && valA !== "" && valB !== "") {
                     return newState === 'asc' ? valA - valB : valB - valA;
                 }
-                // Jika teks
+
+                // Default urutan teks
                 return newState === 'asc' 
                     ? valA.toString().localeCompare(valB.toString()) 
                     : valB.toString().localeCompare(valA.toString());
             });
 
             renderTable(tableData);
-            filterAndSearchTable(); // Tetap terapkan filter yang aktif
+            filterAndSearchTable(); 
         }
 
         function populateFilters() {
-            const branches = [...new Set(tableData.map(d => d.Branch))];
-            const periods = [...new Set(tableData.map(d => d.Period))];
+            const branches = [...new Set(tableData.map(d => d.Branch))].sort();
+            
+            // Urutkan periode di dropdown dari Jan-Des
+            const periods = [...new Set(tableData.map(d => d.Period))].sort((a, b) => {
+                return (monthMap[a] || 99) - (monthMap[b] || 99);
+            });
             
             const bFilter = document.getElementById('branchFilter');
             const pFilter = document.getElementById('periodeFilter');
+
+            // Reset filter options
+            bFilter.innerHTML = '<option value="">Semua Cabang</option>';
+            pFilter.innerHTML = '<option value="">Semua Periode</option>';
 
             branches.forEach(b => bFilter.innerHTML += `<option value="${b}">${b}</option>`);
             periods.forEach(p => pFilter.innerHTML += `<option value="${p}">${p}</option>`);
@@ -211,25 +222,31 @@
 
         function filterAndSearchTable() {
             const search = document.getElementById('searchBox').value.toLowerCase();
+            const position = document.getElementById('positionFilter').value;
             const branch = document.getElementById('branchFilter').value;
             const period = document.getElementById('periodeFilter').value;
 
             const rows = document.querySelectorAll('#tableBody tr');
             rows.forEach(row => {
-                const text = row.innerText.toLowerCase();
-                const branchCell = row.cells[4].innerText;
+                // Berdasarkan index kolom (Period=0, Position=3, Branch=4)
+                // Sesuaikan index ini jika struktur JSON Anda berbeda
                 const periodCell = row.cells[0].innerText;
+                const positionCell = row.cells[3].innerText;
+                const branchCell = row.cells[4].innerText;
+                const allText = row.innerText.toLowerCase();
 
-                const matchSearch = text.includes(search);
+                const matchSearch = allText.includes(search);
+                const matchPosition = !position || positionCell === position;
                 const matchBranch = !branch || branchCell === branch;
                 const matchPeriod = !period || periodCell === period;
 
-                row.style.display = (matchSearch && matchBranch && matchPeriod) ? "" : "none";
+                row.style.display = (matchSearch && matchPosition && matchBranch && matchPeriod) ? "" : "none";
             });
         }
 
         function resetFilter() {
             document.getElementById('searchBox').value = "";
+            document.getElementById('positionFilter').value = "";
             document.getElementById('branchFilter').value = "";
             document.getElementById('periodeFilter').value = "";
             filterAndSearchTable();
@@ -241,11 +258,3 @@
     </script>
 </body>
 </html>
-
-
-
-
-
-
-
-
