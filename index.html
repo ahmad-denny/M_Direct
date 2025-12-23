@@ -34,18 +34,22 @@
         .back-btn:hover { background: #c82333; }
         .print-btn { background: #6f42c1; }
 
-        /* Tabel */
+        /* Tabel & Sorting */
         .table-container { overflow-x: auto; padding-bottom: 10px; }
         table { width: 100%; border-collapse: collapse; margin-top: 1px; font-size: 13px; }
         th, td { padding: 8px; border: 1px solid #ddd; text-align: center; }
         td { text-align: left; white-space: nowrap; }
-        th { background-color: purple; color: white; }
+        th { background-color: purple; color: white; cursor: pointer; position: relative; user-select: none; }
+        th:hover { background-color: #6a006a; }
         
+        /* Indikator Sortir */
+        .sort-icon::after { content: ' ↕'; font-size: 10px; opacity: 0.5; }
+
         /* Highlight dan Kolom Tersembunyi */
-        .highlight-yes { color: #28a745; font-weight: bold; } /* Menggunakan warna yang lebih kontras */
-        .highlight-no, .highlight-red { color: #dc3545; font-weight: bold; } /* Menggunakan warna yang lebih kontras */
+        .highlight-yes { color: #28a745; font-weight: bold; } 
+        .highlight-no, .highlight-red { color: #dc3545; font-weight: bold; } 
         table td:nth-child(n+6), table th:nth-child(n+6) { text-align: center; }
-        table td:nth-child(2), th:nth-child(2) { display: none; } /* Kolom ke-2 disembunyikan */
+        table td:nth-child(2), th:nth-child(2) { display: none; } 
 
         /* Responsif */
         @media screen and (max-width: 768px) {
@@ -84,25 +88,14 @@
                 <option value="">Login DTD</option>
                 <option value="N">NOT Login DTD</option>
             </select>
-            <!--
-            <select id="chartTypeFilter" onchange="renderChart()">
-                <option value="bar">Bar Chart</option>
-                <option value="line">Line Chart</option>
-                <option value="pie">Pie Chart</option>
-            </select>            
-            -->
+
             <button class="btn reset-btn" onclick="resetFilter()">Reset</button>
             <button class="btn back-btn" onclick="openPage()">Back</button>
             <button class="btn print-btn" onclick="printTable()">Print / Save PDF</button>
-                       
+                        
             <h3><p id="time-date"></p></h3>
-            
         </div>
-        <!--
-        <div style="width: 95%; margin: 20px auto;">
-            <canvas id="performanceChart"></canvas>
-        </div>
-        -->
+
         <div class="table-container">
             <table id="dataTable">
                 <thead>
@@ -115,9 +108,8 @@
 
     <script>
         let tableData = [];
-        let myChart;
+        let sortDirections = [];
 
-        // Fungsi untuk mengupdate waktu dan tanggal
         function updateTimeDate() {
             const now = new Date();
             const time = now.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', second: "2-digit" });
@@ -127,7 +119,6 @@
         setInterval(updateTimeDate, 1000);
         updateTimeDate();
 
-        // 1. Ambil Data dan Isi Tabel
         fetch('Dataset.json')
             .then(response => {
                 if (!response.ok) throw new Error('Network response was not ok');
@@ -148,45 +139,78 @@
             let periods = new Set();
 
             if (data.length > 0) {
-                // Isi Header
-                tableHead.innerHTML = Object.keys(data[0]).map(header => `<th>${header}</th>`).join('');
+                // Header dengan fungsi sort
+                const headers = Object.keys(data[0]);
+                tableHead.innerHTML = headers.map((header, index) => 
+                    `<th onclick="sortTable(${index})" class="sort-icon">${header}</th>`
+                ).join('');
+                
+                sortDirections = new Array(headers.length).fill(true);
 
-                // Isi Body
+                // Render Baris
+                renderRows(data);
+
                 data.forEach(row => {
-                    let tr = document.createElement('tr');
-                    Object.values(row).forEach(cell => {
-                        let td = document.createElement('td');
-                        td.textContent = cell;
-                        tr.appendChild(td);
-                    });
-
-                    // Terapkan highlight ke kolom ke-6 (indeks 5) dan ke-7 (indeks 6)
-                    let loginMTDCell = tr.cells[5];
-                    if (loginMTDCell && loginMTDCell.textContent === "0") {
-                        loginMTDCell.classList.add("highlight-red");
-                    }
-                    
-                    let loginDTDCell = tr.cells[6];
-                    if (loginDTDCell) {
-                        if (loginDTDCell.textContent === "Y") loginDTDCell.classList.add("highlight-yes");
-                        else if (loginDTDCell.textContent === "N") loginDTDCell.classList.add("highlight-no");
-                    }
-
-                    tableBody.appendChild(tr);
                     branches.add(row['Branch']);
                     periods.add(row['Period']);
                 });
 
-                // Isi Opsi Filter
                 updateFilterOptions(branchFilter, branches, 'All Branch');
                 updateFilterOptions(periodeFilter, periods, 'All Period');
-                renderChart();
             }
+        }
+
+        function renderRows(data) {
+            const tableBody = document.getElementById('tableBody');
+            tableBody.innerHTML = '';
+            
+            data.forEach(row => {
+                let tr = document.createElement('tr');
+                Object.values(row).forEach((cell, index) => {
+                    let td = document.createElement('td');
+                    td.textContent = cell;
+                    
+                    // Highlight logic
+                    if (index === 5 && cell === "0") td.classList.add("highlight-red");
+                    if (index === 6) {
+                        if (cell === "Y") td.classList.add("highlight-yes");
+                        else if (cell === "N") td.classList.add("highlight-no");
+                    }
+                    tr.appendChild(td);
+                });
+                tableBody.appendChild(tr);
+            });
+        }
+
+        // --- FUNGSI SORTING BARU ---
+        function sortTable(columnIndex) {
+            const isAscending = sortDirections[columnIndex];
+            
+            tableData.sort((a, b) => {
+                let valA = Object.values(a)[columnIndex];
+                let valB = Object.values(b)[columnIndex];
+
+                // Cek jika data adalah angka
+                if (!isNaN(valA) && !isNaN(valB)) {
+                    return isAscending ? valA - valB : valB - valA;
+                }
+                
+                // Urutan string
+                valA = valA.toString().toLowerCase();
+                valB = valB.toString().toLowerCase();
+                if (valA < valB) return isAscending ? -1 : 1;
+                if (valA > valB) return isAscending ? 1 : -1;
+                return 0;
+            });
+
+            sortDirections[columnIndex] = !isAscending; // Balik arah untuk klik berikutnya
+            renderRows(tableData);
+            filterAndSearchTable(); // Re-apply filter setelah sorting
         }
 
         function updateFilterOptions(filterElement, values, defaultLabel) {
             filterElement.innerHTML = `<option value="">${defaultLabel}</option>`;
-            values.forEach(value => {
+            Array.from(values).sort().forEach(value => {
                 let option = document.createElement('option');
                 option.value = value;
                 option.textContent = value;
@@ -194,7 +218,6 @@
             });
         }
 
-        // 2. Filter dan Cari
         function filterAndSearchTable() {
             const searchValue = document.getElementById('searchBox').value.toLowerCase();
             const positionValue = document.getElementById('positionFilter').value.toLowerCase();
@@ -205,7 +228,6 @@
 
             document.getElementById('tableBody').querySelectorAll('tr').forEach(row => {
                 let cells = row.getElementsByTagName('td');
-
                 let nameMarketingMatch = searchValue === "" ||
                                          (cells[1] && cells[1].textContent.toLowerCase().includes(searchValue)) ||
                                          (cells[2] && cells[2].textContent.toLowerCase().includes(searchValue));
@@ -216,16 +238,10 @@
                 let zeroMTDMatch = zeroMTDValue === "" || (cells[5] && cells[5].textContent.toLowerCase() === zeroMTDValue);
                 let zeroDTDMatch = zeroDTDValue === "" || (cells[6] && cells[6].textContent.toLowerCase() === zeroDTDValue);
 
-                if (nameMarketingMatch && positionMatch && branchMatch && periodeMatch && zeroMTDMatch && zeroDTDMatch) {
-                    row.style.display = "";
-                } else {
-                    row.style.display = "none";
-                }                
+                row.style.display = (nameMarketingMatch && positionMatch && branchMatch && periodeMatch && zeroMTDMatch && zeroDTDMatch) ? "" : "none";
             });  
-            renderChart();
         }
         
-        // 3. Reset Filter
         function resetFilter() {
             document.getElementById('searchBox').value = "";
             document.getElementById('positionFilter').value = "";
@@ -236,152 +252,13 @@
             filterAndSearchTable();
         }
 
-        // 4. Print Tabel
         function printTable() {
-            let tableContent = document.getElementById("dataTable").outerHTML;
-            let originalContent = document.body.innerHTML;
-        
-            // Sembunyikan elemen filter dan tombol sebelum mencetak untuk hasil yang bersih
-            document.body.innerHTML = tableContent;
             window.print();
-            document.body.innerHTML = originalContent; // Kembalikan konten asli setelah mencetak
-            // Catatan: Anda mungkin perlu memanggil ulang `populateTable` setelah mengembalikan konten asli 
-            // jika implementasi di atas menyebabkan data hilang. Namun, untuk file sederhana ini, diasumsikan cukup.
-            location.reload(); // Solusi yang lebih aman untuk memuat ulang semua JavaScript
         }
+
         function openPage() {
             window.location.href = 'https://bmi-apps.github.io/regionsumatera/';
         }
-
-    // ... (Fungsi getRandomColor tetap sama) ...
-
-   // --- 5. Fungsi Render Chart ---
-    function renderChart() {
-    // Ambil nilai filter saat ini
-    const selectedChartType = document.getElementById('chartTypeFilter').value;
-    const branchValue = document.getElementById('branchFilter').value;
-    const periodeValue = document.getElementById('periodeFilter').value;
-
-    // 1. Filter Data
-    let filteredData = tableData.filter(row => {
-        const branchMatch = !branchValue || row['Branch'] === branchValue;
-        const periodeMatch = !periodeValue || row['Period'] === periodeValue;
-        return branchMatch && periodeMatch;
-    });
-
-    // 2. Agregasi Data (Contoh: Total 'Login MTD' per 'Branch' yang difilter)
-    let branchSummary = {};
-    let metricKey = 'Login MTD'; // Asumsi ini adalah salah satu kolom data
-
-    // Jika filter periode tidak dipilih, kita kelompokkan per periode
-    let groupByKey = branchValue ? 'Branch' : 'Period';
-    
-    // Jika filter branch dipilih, kita kelompokkan per position
-    if (branchValue) groupByKey = 'Position';
-    else if (periodeValue) groupByKey = 'Branch';
-    else groupByKey = 'Period'; // Default
-
-    filteredData.forEach(row => {
-        const key = row[groupByKey];
-        const value = parseInt(row[metricKey]);
-        
-        if (!branchSummary[key]) {
-            branchSummary[key] = { total: 0, count: 0 };
-        }
-        branchSummary[key].total += isNaN(value) ? 0 : value;
-        branchSummary[key].count++;
-    });
-
-    const labels = Object.keys(branchSummary);
-    const dataPoints = labels.map(key => branchSummary[key].total);
-    const chartTitle = `Total ${metricKey} berdasarkan ${groupByKey}`;
-    // Warna Acak (tetap digunakan)
-    const backgroundColors = labels.map(() => getRandomColor());
-    let borderColors = backgroundColors; 
-    
-    // Untuk Line Chart, biasanya kita hanya ingin satu warna solid
-    if (selectedChartType === 'line') {
-        borderColors = [getRandomColor()]; // Hanya satu warna untuk garis
-    }
-        
-    // 3. Render Chart
-    const ctx = document.getElementById('performanceChart').getContext('2d');
-    
-    // Hancurkan chart lama jika ada
-    if (myChart) {
-        myChart.destroy();
-    }
-
-    myChart = new Chart(ctx, {
-        type: selectedChartType, // Jenis chart: bar, line, pie, dll.
-        data: {
-            labels: labels,
-            datasets: [{
-                label: chartTitle,
-                data: dataPoints,
-                backgroundColor: backgroundColors, 
-                borderColor: borderColors,
-                borderWidth: selectedChartType === 'line' ? 3 : 1, // Garis lebih tebal untuk Line Chart
-                // Sembunyikan titik koneksi untuk Pie Chart
-                pointRadius: selectedChartType === 'line' ? 5 : 0, 
-                // Line Chart dan Pie Chart tidak mengisi area
-                fill: selectedChartType === 'line' ? false : true,
-            }]
-        },
-        options: {
-            responsive: true,
-            // Sembunyikan skala Y dan X untuk Pie Chart karena tidak relevan
-            scales: {
-                y: {
-                    display: selectedChartType !== 'pie',
-                    beginAtZero: true,
-                    title: {
-                        display: true,
-                        text: selectedChartType !== 'pie' ? metricKey : ''
-                    }
-                },
-                x: {
-                    display: selectedChartType !== 'pie',
-                }
-            },
-            plugins: {
-                title: {
-                    display: true,
-                    text: chartTitle
-                }
-            }
-        }
-        });
-        }
-        // Fungsi untuk menghasilkan warna heksadesimal acak
-        function getRandomColor() {
-            const letters = '0123456789ABCDEF';
-            let color = '#';
-            for (let i = 0; i < 6; i++) {
-                color += letters[Math.floor(Math.random() * 16)];
-            }
-            return color;
-        }
     </script>
-    
 </body>
 </html>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
