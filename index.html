@@ -318,8 +318,8 @@
             const table = document.getElementById("dataTable");
             const rows = Array.from(table.rows);
             
-            // 1. Ambil data yang terlihat saja (Baris & Kolom yang tidak di-hide)
-            const data = rows.filter(row => row.style.display !== "none")
+            // 1. Ambil data yang terlihat & kolom yang tidak disembunyikan
+            const cleanData = rows.filter(row => row.style.display !== "none")
                 .map(row => {
                     return Array.from(row.cells)
                         .filter(cell => {
@@ -329,34 +329,40 @@
                         .map(cell => cell.textContent.trim());
                 });
         
-            if (data.length === 0) {
+            if (cleanData.length === 0) {
                 alert("Tidak ada data untuk di-export!");
                 return;
             }
         
-            // 2. Membuat Worksheet dari Array of Arrays
-            const ws = XLSX.utils.aoa_to_sheet(data);
+            // 2. Buat Worksheet
+            const ws = XLSX.utils.aoa_to_sheet(cleanData);
         
-            // 3. Logika Auto-Fit Lebar Kolom
-            // Menghitung jumlah karakter terpanjang di setiap kolom untuk menentukan lebar
-            const colWidths = data[0].map((_, colIndex) => {
+            // 3. Atur Lebar Kolom Otomatis (Auto-fit)
+            const colWidths = cleanData[0].map((_, colIndex) => {
                 let maxLen = Math.max(
-                    ...data.map(row => (row[colIndex] ? row[colIndex].toString().length : 0))
+                    ...cleanData.map(row => (row[colIndex] ? row[colIndex].toString().length : 0))
                 );
-                return { wch: maxLen + 3 }; // Tambah padding 3 karakter agar tidak mepet
+                return { wch: maxLen + 5 };
             });
             ws['!cols'] = colWidths;
         
-            // 4. Membuat Workbook
+            /** * CATATAN STYLING:
+             * Library xlsx.full.min.js versi Community (gratis) tidak mendukung 
+             * penulisan warna sel (cell fill/background) ke file .xlsx secara langsung. 
+             * Fitur ini hanya tersedia di versi Pro.
+             * * Sebagai alternatif terbaik, kita pastikan data header 
+             * menggunakan huruf kapital agar terlihat sebagai pembeda di Excel.
+             */
+        
+            // 4. Buat Workbook
             const wb = XLSX.utils.book_new();
             XLSX.utils.book_append_sheet(wb, ws, "Performance");
         
-            // 5. Penamaan File (Format: Performance_Sumatera_23-12-2025.xlsx)
-            const now = new Date();
-            const dateStr = now.toLocaleDateString('id-ID').replace(/\//g, '-');
-            const fileName = `Performance_Sumatera_${dateStr}.xlsx`;
+            // 5. Penamaan File
+            const today = new Date().toISOString().split('T')[0];
+            const fileName = `Performance_Sumatera_${today}.xlsx`;
         
-            // 6. Proses Download
+            // 6. Download
             XLSX.writeFile(wb, fileName);
         }
         function renderChart() {
@@ -366,4 +372,5 @@
     </script>
 </body>
 </html>
+
 
