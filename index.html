@@ -1,172 +1,243 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.0/xlsx.full.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <title>M|Direct Performance Sumatera</title>
-    <style>
-        body { font-family: 'Segoe UI', Arial, sans-serif; text-align: center; background-color: #f0f2f5; padding: 20px; margin: 0; }
-        .container { width: 95%; max-width: 1200px; margin: 0 auto; background: #fff; padding: 20px; border-radius: 12px; box-shadow: 0px 4px 20px rgba(0,0,0,0.08); }
-        h2 { color: white; background: linear-gradient(90deg, #6a1b9a, #8e24aa); padding: 15px; border-radius: 8px; margin-top: 0; }
-        .filter-container { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; padding: 20px; background: #f8f9fa; border-radius: 10px; margin-bottom: 20px; border: 1px solid #e9ecef; }
-        input[type="text"], select { width: 100%; max-width: 200px; padding: 8px; border: 1px solid #ccc; border-radius: 5px; }
-        .btn { padding: 10px 20px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; color: white; transition: 0.3s; }
-        .reset-btn { background: #28a745; }
-        .back-btn { background: #dc3545; }
-        .print-btn { background: #6f42c1; }
-        .table-container { overflow-x: auto; }
-        table { width: 100%; border-collapse: collapse; font-size: 13px; }
-        th, td { padding: 10px; border: 1px solid #ddd; text-align: center; }
-        th { background-color: purple; color: white; cursor: pointer; white-space: nowrap; }
-        .sort-icon { margin-left: 8px; font-size: 12px; }
-        .highlight-yes { color: #28a745; font-weight: bold; }
-        .highlight-no, .highlight-red { color: #dc3545; font-weight: bold; }
-        /* Sembunyikan kolom ke-2 (Marketing Code/NIK) */
-        table td:nth-child(2), th:nth-child(2) { display: none; }
-    </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.0/xlsx.full.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <title>M|Direct Performance Sumatera</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            text-align: center;
+            background-color: #f0f2f5;
+            padding: 20px;
+            margin: 0;
+        }
+        .container {
+            width: 95%;
+            max-width: 1200px;
+            margin: 0 auto;
+            background: #fff;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0px 4px 20px rgba(0, 0, 0, 0.08);
+        }
+        h2 {
+            color: white;
+            background: linear-gradient(90deg, #6a1b9a, #8e24aa);
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 0;
+        }
+        
+        .filter-container {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 10px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            border: 1px solid #e9ecef;
+        }
+        input[type="text"], select { width: 100%; max-width: 200px; 
+                                    padding: 8px; border: 1px solid #ccc; 
+                                    border-radius: 5px; }
+        
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: 0.3s;
+            color: white;
+        }
+        .reset-btn { background: #28a745; }
+        .reset-btn:hover { background: #218838; }
+        .back-btn { background: #dc3545; }
+        .back-btn:hover { background: #c82333; }
+        .print-btn { background: #6f42c1; }
+
+        .table-container { overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; font-size: 13px; }
+        th, td { padding: 10px; border: 1px solid #ddd; text-align: center; }
+        th { background-color: purple; color: white; cursor: pointer; position: relative; white-space: nowrap; }
+        th:hover { background-color: #6a006a; }
+
+        /* Styling Ikon Sortir */
+        .sort-icon { margin-left: 8px; font-size: 12px; transition: 0.3s; }
+        
+        /* Highlight Colors */
+        .highlight-yes { color: #28a745; font-weight: bold; }
+        .highlight-no, .highlight-red { color: #dc3545; font-weight: bold; }
+        
+        /* Sembunyikan kolom ke-2 (Marketing Code) sesuai request awal */
+        table td:nth-child(2), th:nth-child(2) { display: none; }
+
+        @media screen and (max-width: 768px) {
+            .filter-container { flex-direction: column; align-items: stretch;}
+            input, select, .btn { width: 100%; max-width: none; } 
+        }
+        
+    </style>
 </head>
+
 <body>
+    <div class="container">
+        <h2>M-Direct Performance Region Sumatera</h2>
+        
+        <div class="filter-container">
+            <input type="text" id="searchBox" placeholder="Cari Nama/NIK" onkeyup="filterAndSearchTable()">
+            <select id="positionFilter" onchange="filterAndSearchTable()">
+                <option value="">Semua Posisi</option>
+                <option value="RM">RM</option>
+                <option value="CS">CS</option>
+            </select>
+            <select id="branchFilter" onchange="filterAndSearchTable()"><option value="">Semua Cabang</option></select>
+            <select id="periodeFilter" onchange="filterAndSearchTable()"><option value="">Semua Periode</option></select>
+            
+            <button class="btn reset-btn" onclick="resetFilter()">Reset</button>
+            <button class="btn back-btn" onclick="openPage()">Back</button>
+            <button class="btn print-btn" onclick="window.print()">Print</button>
+            <!--
+            <p id="time-date" style="font-size: 12px; margin-left: auto;"></p>
+            -->
+        </div>
 
-<div class="container">
-    <h2>M-Direct Performance Region Sumatera</h2>
-    <div class="filter-container">
-        <input type="text" id="searchBox" placeholder="Cari Nama/NIK" onkeyup="filterAndSearchTable()">
-        <select id="positionFilter" onchange="filterAndSearchTable()">
-            <option value="">Semua Posisi</option>
-            <option value="RM">RM</option>
-            <option value="CS">CS</option>
-        </select>
-        <select id="branchFilter" onchange="filterAndSearchTable()"><option value="">Semua Cabang</option></select>
-        <select id="periodeFilter" onchange="filterAndSearchTable()"><option value="">Semua Periode</option></select>
-        <button class="btn reset-btn" onclick="resetFilter()">Reset</button>
-        <button class="btn back-btn" onclick="openPage()">Back</button>
-        <button class="btn print-btn" onclick="window.print()">Print</button>
-    </div>
-    <div class="table-container">
-        <table id="dataTable">
-            <thead><tr id="tableHead"></tr></thead>
-            <tbody id="tableBody"></tbody>
-        </table>
-    </div>
-</div>
+        <div class="table-container">
+            <table id="dataTable">
+                <thead>
+                    <tr id="tableHead"></tr>
+                </thead>
+                <tbody id="tableBody"></tbody>
+            </table>
+        </div>
+    </div>    
 
-<script>
-    let tableData = [];
-    let sortStates = {};
+    <script>
+        let tableData = [];
+        let sortStates = {}; // Menyimpan status sort tiap kolom (asc/desc)
 
-    const monthMap = {
-        "Januari": 1, "Februari": 2, "Maret": 3, "April": 4, "Mei": 5, "Juni": 6,
-        "Juli": 7, "Agustus": 8, "September": 9, "Oktober": 10, "November": 11, "Desember": 12
-    };
+        // Update Waktu
+        function updateTime() {
+            const now = new Date();
+            document.getElementById("time-date").innerHTML = now.toLocaleString('id-ID');
+        }
+        setInterval(updateTime, 1000);
 
-    fetch('Dataset.json')
-        .then(res => res.json())
-        .then(data => {
-            tableData = data;
-            
-            // --- LOGIKA SORTIR OTOMATIS SAAT LOAD ---
-            tableData.sort((a, b) => (monthMap[a.Period] || 99) - (monthMap[b.Period] || 99));
-            
-            initTable();
-            
-            // Set icon panah atas pada kolom Period (index 0)
-            sortStates[0] = 'asc';
-            const icon = document.getElementById('sort-icon-0');
-            if(icon) icon.innerHTML = '▲';
-            
-        }).catch(err => console.error("Gagal memuat data:", err));
+        // Load Data
+        fetch('Dataset.json')
+            .then(res => res.json())
+            .then(data => {
+                tableData = data;
+                initTable();
+            }).catch(err => console.error("Gagal memuat data:", err));
 
-    function initTable() {
-        if (!tableData.length) return;
-        const headers = Object.keys(tableData[0]);
-        const tableHead = document.getElementById('tableHead');
-        tableHead.innerHTML = headers.map((h, i) => `
-            <th onclick="sortTable(${i}, '${h}')">
-                ${h} <span id="sort-icon-${i}" class="sort-icon">↕</span>
-            </th>
-        `).join('');
-        renderTable(tableData);
-        populateFilters();
-    }
+        function initTable() {
+            const headers = Object.keys(tableData[0]);
+            const tableHead = document.getElementById('tableHead');
+            
+            // Buat header dengan ikon panah netral ↕
+            tableHead.innerHTML = headers.map((h, i) => `
+                <th onclick="sortTable(${i}, '${h}')">
+                    ${h} <span id="sort-icon-${i}" class="sort-icon">↕</span>
+                </th>
+            `).join('');
 
-    function renderTable(data) {
-        const tbody = document.getElementById('tableBody');
-        tbody.innerHTML = data.map(row => {
-            const cells = Object.values(row);
-            return `<tr>
-                ${cells.map((cell, i) => {
-                    let cls = "";
-                    if(i === 5 && cell === "0") cls = "highlight-red";
-                    if(i === 6) cls = (cell === "Y") ? "highlight-yes" : "highlight-no";
-                    return `<td class="${cls}">${cell}</td>`;
-                }).join('')}
-            </tr>`;
-        }).join('');
-    }
+            renderTable(tableData);
+            populateFilters();
+        }
 
-    function sortTable(index, key) {
-        const currentState = sortStates[index] || 'none';
-        let newState = (currentState === 'asc') ? 'desc' : 'asc';
-        sortStates = { [index]: newState };
+        function renderTable(data) {
+            const tbody = document.getElementById('tableBody');
+            tbody.innerHTML = data.map(row => {
+                const cells = Object.values(row);
+                return `<tr>
+                    ${cells.map((cell, i) => {
+                        let cls = "";
+                        if(i === 5 && cell === "0") cls = "highlight-red";
+                        if(i === 6) cls = (cell === "Y") ? "highlight-yes" : "highlight-no";
+                        return `<td class="${cls}">${cell}</td>`;
+                    }).join('')}
+                </tr>`;
+            }).join('');
+        }
 
-        document.querySelectorAll('.sort-icon').forEach(el => el.innerHTML = '↕');
-        document.getElementById(`sort-icon-${index}`).innerHTML = (newState === 'asc') ? '▲' : '▼';
+        function sortTable(index, key) {
+            // Toggle status: default -> asc -> desc -> asc
+            const currentState = sortStates[index] || 'none';
+            let newState = (currentState === 'asc') ? 'desc' : 'asc';
+            sortStates = { [index]: newState }; // Reset sort lain, aktifkan yang ini
 
-        tableData.sort((a, b) => {
-            let valA = a[key];
-            let valB = b[key];
-            if (key === 'Period') {
-                return newState === 'asc' ? (monthMap[valA] - monthMap[valB]) : (monthMap[valB] - monthMap[valA]);
-            }
-            if (!isNaN(valA) && !isNaN(valB) && valA !== "") {
-                return newState === 'asc' ? valA - valB : valB - valA;
-            }
-            return newState === 'asc' ? valA.toString().localeCompare(valB) : valB.toString().localeCompare(valA);
-        });
-        renderTable(tableData);
-        filterAndSearchTable();
-    }
+            // Reset semua ikon ke netral
+            document.querySelectorAll('.sort-icon').forEach(el => el.innerHTML = '↕');
+            
+            // Update ikon kolom terpilih
+            const icon = document.getElementById(`sort-icon-${index}`);
+            icon.innerHTML = (newState === 'asc') ? '▲' : '▼';
 
-    function populateFilters() {
-        const branches = [...new Set(tableData.map(d => d.Branch))].sort();
-        const periods = [...new Set(tableData.map(d => d.Period))].sort((a, b) => monthMap[a] - monthMap[b]);
-        
-        const bFilter = document.getElementById('branchFilter');
-        const pFilter = document.getElementById('periodeFilter');
-        
-        branches.forEach(b => bFilter.innerHTML += `<option value="${b}">${b}</option>`);
-        periods.forEach(p => pFilter.innerHTML += `<option value="${p}">${p}</option>`);
-    }
+            tableData.sort((a, b) => {
+                let valA = a[key];
+                let valB = b[key];
 
-    function filterAndSearchTable() {
-        const search = document.getElementById('searchBox').value.toLowerCase();
-        const pos = document.getElementById('positionFilter').value;
-        const branch = document.getElementById('branchFilter').value;
-        const period = document.getElementById('periodeFilter').value;
-        
-        const rows = document.querySelectorAll('#tableBody tr');
-        rows.forEach(row => {
-            const pCell = row.cells[0].innerText;
-            const posCell = row.cells[3].innerText;
-            const bCell = row.cells[4].innerText;
-            const allText = row.innerText.toLowerCase();
+                // Cek jika angka
+                if (!isNaN(valA) && !isNaN(valB)) {
+                    return newState === 'asc' ? valA - valB : valB - valA;
+                }
+                // Jika teks
+                return newState === 'asc' 
+                    ? valA.toString().localeCompare(valB.toString()) 
+                    : valB.toString().localeCompare(valA.toString());
+            });
 
-            const match = allText.includes(search) && (!pos || posCell === pos) && (!branch || bCell === branch) && (!period || pCell === period);
-            row.style.display = match ? "" : "none";
-        });
-    }
+            renderTable(tableData);
+            filterAndSearchTable(); // Tetap terapkan filter yang aktif
+        }
 
-    function resetFilter() {
-        document.getElementById('searchBox').value = "";
-        document.getElementById('positionFilter').value = "";
-        document.getElementById('branchFilter').value = "";
-        document.getElementById('periodeFilter').value = "";
-        filterAndSearchTable();
-    }
+        function populateFilters() {
+            const branches = [...new Set(tableData.map(d => d.Branch))];
+            const periods = [...new Set(tableData.map(d => d.Period))];
+            
+            const bFilter = document.getElementById('branchFilter');
+            const pFilter = document.getElementById('periodeFilter');
 
-    function openPage() { window.location.href = 'https://bmi-apps.github.io/regionsumatera/'; }
-</script>
+            branches.forEach(b => bFilter.innerHTML += `<option value="${b}">${b}</option>`);
+            periods.forEach(p => pFilter.innerHTML += `<option value="${p}">${p}</option>`);
+        }
+
+        function filterAndSearchTable() {
+            const search = document.getElementById('searchBox').value.toLowerCase();
+            const branch = document.getElementById('branchFilter').value;
+            const period = document.getElementById('periodeFilter').value;
+
+            const rows = document.querySelectorAll('#tableBody tr');
+            rows.forEach(row => {
+                const text = row.innerText.toLowerCase();
+                const branchCell = row.cells[4].innerText;
+                const periodCell = row.cells[0].innerText;
+
+                const matchSearch = text.includes(search);
+                const matchBranch = !branch || branchCell === branch;
+                const matchPeriod = !period || periodCell === period;
+
+                row.style.display = (matchSearch && matchBranch && matchPeriod) ? "" : "none";
+            });
+        }
+
+        function resetFilter() {
+            document.getElementById('searchBox').value = "";
+            document.getElementById('branchFilter').value = "";
+            document.getElementById('periodeFilter').value = "";
+            filterAndSearchTable();
+        }
+
+        function openPage() {
+            window.location.href = 'https://bmi-apps.github.io/regionsumatera/';
+        }
+    </script>
 </body>
 </html>
