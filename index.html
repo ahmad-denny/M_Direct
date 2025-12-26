@@ -153,6 +153,11 @@
         <h2>M-Direct Performance Region Sumatera</h2>
 
         <div class="filter-container">
+
+            <select id="periodeFilter" onchange="filterAndSearchTable()">
+                <option value="">All Period</option>
+            </select>
+
             <input type="text" id="searchBox" placeholder="Name or Marketing Code..." onkeyup="filterAndSearchTable()">
             
             <select id="positionFilter" onchange="filterAndSearchTable()">
@@ -167,10 +172,6 @@
 
             <select id="branchFilter" onchange="filterAndSearchTable()">
                 <option value="">All Branch</option>
-            </select>
-
-            <select id="periodeFilter" onchange="filterAndSearchTable()">
-                <option value="">All Period</option>
             </select>
 
             <select id="zeroMTDFilter" onchange="filterAndSearchTable()">
@@ -372,5 +373,6 @@
     </script>
 </body>
 </html>
+
 
 
