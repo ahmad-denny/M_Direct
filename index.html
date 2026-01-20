@@ -48,7 +48,6 @@
         <button class="btn print-btn" onclick="printTable()">Print</button>
         <button class="btn export-btn" onclick="exportToExcel()">Export XLS</button>
         <button class="btn back-btn" onclick="openPage()">Back</button>
-        <h3 id="time-date" style="width: 100%; font-size: 13px; color: #666;"></h3>
     </div>
 
     <div id="chartWrapper">
@@ -71,13 +70,7 @@
     let tableData = [];
     let myChart = null;
 
-    function updateTime() {
-        const now = new Date();
-        document.getElementById('time-date').innerText = "Last Update: " + now.toLocaleString('id-ID');
-    }
-    setInterval(updateTime, 1000);
-    updateTime();
-
+    // Load Data
     fetch('Dataset.json')
         .then(res => res.json())
         .then(data => {
@@ -229,11 +222,9 @@
                         align: 'top', 
                         font: { weight: 'bold' },
                         formatter: (value, context) => {
-                            // Jika label kategori adalah 'Total MTD', tampilkan tanpa desimal
                             if (context.chart.data.labels[context.dataIndex] === 'Total MTD') {
                                 return Math.round(value);
                             }
-                            // Jika label kategori adalah 'Daily Average', tampilkan 1 digit desimal
                             return value.toLocaleString('id-ID', { minimumFractionDigits: 1, maximumFractionDigits: 1 });
                         }
                     }
