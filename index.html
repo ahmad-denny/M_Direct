@@ -14,14 +14,16 @@
         h2 { color: white; background: linear-gradient(90deg, #6a1b9a, #8e24aa); padding: 15px; border-radius: 8px; margin-top: 0; }
         .filter-container { display: flex; flex-wrap: wrap; gap: 10px; padding: 20px; background: #f8f9fa; border-radius: 10px; margin-bottom: 20px; border: 1px solid #e9ecef; }
         input, select { padding: 10px; border: 1px solid #ddd; border-radius: 6px; flex: 1; min-width: 150px; }
-        .btn { padding: 10px 18px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; color: white; }
+        .btn { padding: 10px 18px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; color: white; transition: 0.3s; }
         .reset-btn { background: #28a745; } .back-btn { background: #dc3545; } .print-btn { background: #6f42c1; } .export-btn { background: #f39c12; }
-        #chartWrapper { display: none; margin-bottom: 30px; padding: 20px; border: 2px solid #6a1b9a; border-radius: 12px; background: #fff; }
-        .table-container { overflow-x: auto; margin-top: 10px; border-radius: 8px; max-height: 600px; }
+        .btn:hover { opacity: 0.8; }
+        #chartWrapper { display: none; margin-bottom: 30px; padding: 20px; border: 2px solid #6a1b9a; border-radius: 12px; background: #fff; animation: fadeIn 0.5s; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        .table-container { overflow-x: auto; margin-top: 10px; border-radius: 8px; max-height: 600px; border: 1px solid #eee; }
         table { width: 100%; border-collapse: collapse; font-size: 12px; }
         th, td { padding: 10px 8px; border: 1px solid #ddd; text-align: left; white-space: nowrap; }
         th { background-color: #6a1b9a; color: white; position: sticky; top: 0; z-index: 5; }
-        th:nth-child(2), td:nth-child(2) { display: none; } /* Sembunyikan Kode */
+        th:nth-child(2), td:nth-child(2) { display: none; }
         .highlight-red { color: #dc3545; font-weight: bold; }
         .highlight-yes { color: #28a745; font-weight: bold; }
         .clickable-name { color: #6a1b9a; font-weight: bold; cursor: pointer; text-decoration: underline; }
@@ -30,7 +32,7 @@
 <body>
 
 <div class="container">
-    <h2>M-Direct Performance Sumatera</h2>
+    <h2>M-Direct Performance Region Sumatera</h2>
 
     <div class="filter-container">
         <select id="periodeFilter" onchange="filterAndSearchTable()"><option value="">All Period</option></select>
@@ -48,13 +50,13 @@
         <button class="btn print-btn" onclick="printTable()">Print</button>
         <button class="btn export-btn" onclick="exportToExcel()">Export XLS</button>
         <button class="btn back-btn" onclick="openPage()">Back</button>
-        <h3 id="time-date" style="width: 100%; font-size: 13px; color: #666;"></h3>
+        <h3 id="time-date" style="width: 100%; font-size: 13px; color: #666; font-style: italic;"></h3>
     </div>
 
     <div id="chartWrapper">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
             <h4 id="chartTitle" style="margin: 0; color: #6a1b9a;">Performance Detail</h4>
-            <button onclick="closeChart()" style="border:none; background:#eee; cursor:pointer; padding:5px 10px; border-radius:4px;">✕ Close</button>
+            <button onclick="closeChart()" style="border:none; background:#eee; cursor:pointer; padding:5px 10px; border-radius:4px;">✕ Close Chart</button>
         </div>
         <div style="height: 350px;"><canvas id="performanceChart"></canvas></div>
     </div>
@@ -73,7 +75,7 @@
 
     function updateTime() {
         const now = new Date();
-        document.getElementById('time-date').innerText = "Last Access: " + now.toLocaleString('id-ID');
+        document.getElementById('time-date').innerText = "Update Terakhir: " + now.toLocaleString('id-ID');
     }
     setInterval(updateTime, 1000);
     updateTime();
@@ -106,16 +108,16 @@
                 let tr = document.createElement('tr');
                 headers.forEach((header, index) => {
                     let td = document.createElement('td');
-                    let val = row[header] === null || row[header] === undefined ? "" : row[header];
+                    let val = (row[header] === null || row[header] === undefined) ? "" : row[header];
                     td.textContent = val;
 
-                    if (index === 2) { // Kolom Nama
+                    if (index === 2) { 
                         td.classList.add('clickable-name');
                         td.onclick = () => showChart(row);
                     }
-                    if (header.includes("Login MTD") && val == "0") td.classList.add("highlight-red");
-                    if (header.includes("Login DTD") && val === "Y") td.classList.add("highlight-yes");
-                    if (header.includes("Login DTD") && val === "N") td.classList.add("highlight-red");
+                    if (header.toLowerCase().includes("mtd") && val == "0") td.classList.add("highlight-red");
+                    if (header.toLowerCase().includes("dtd") && val === "Y") td.classList.add("highlight-yes");
+                    if (header.toLowerCase().includes("dtd") && val === "N") td.classList.add("highlight-red");
 
                     tr.appendChild(td);
                 });
@@ -123,14 +125,14 @@
                 
                 if(row['Branch']) branches.add(row['Branch'].toString().trim());
                 if(row['Period']) periods.add(row['Period'].toString().trim());
-                // Ambil semua posisi unik dari data
-                const posCol = Object.keys(row)[3]; // Asumsi kolom posisi adalah kolom ke-4
-                if(row[posCol]) positions.add(row[posCol].toString().trim());
+                
+                // Mendeteksi kolom posisi secara dinamis (biasanya kolom ke-4 / index 3)
+                const posColName = headers[3]; 
+                if(row[posColName]) positions.add(row[posColName].toString().trim());
             });
 
             fillSelect(branchFilter, branches, 'All Branch');
             fillSelect(periodeFilter, periods, 'All Period');
-            // Isi otomatis dropdown posisi berdasarkan data yang ada
             fillPositionSelect(positionFilter, positions);
         }
     }
@@ -145,7 +147,6 @@
     }
 
     function fillPositionSelect(el, set) {
-        // Reset tapi simpan All Position dan RM (All)
         el.innerHTML = '<option value="">All Position</option><option value="RM_ALL">RM (All Group)</option>';
         Array.from(set).sort().forEach(v => {
             let opt = document.createElement('option');
@@ -194,17 +195,16 @@
 
         if (myChart) myChart.destroy();
 
-        // FUNGSI PENCARIAN KEY FLEXIBEL (Mencegah Avg Call Kosong)
+        // FUNGSI PENCARIAN KEY (DENGAN FIX DESIMAL)
         const findVal = (target) => {
             const keys = Object.keys(rowData);
-            // Cari key yang mengandung kata target (misal 'AVG' dan 'Call') tanpa peduli case
             const foundKey = keys.find(k => {
                 const search = target.toLowerCase().split(' ');
                 return search.every(word => k.toLowerCase().includes(word));
             });
             if (foundKey) {
-                let val = rowData[foundKey];
-                return parseFloat(val.toString().replace(',', '.')) || 0;
+                let rawVal = rowData[foundKey].toString().replace(',', '.');
+                return parseFloat(rawVal) || 0;
             }
             return 0;
         };
@@ -217,7 +217,7 @@
         myChart = new Chart(ctx, {
             type: 'bar',
             data: {
-                labels: ['MTD Total', 'Daily Average'],
+                labels: ['Total MTD', 'Daily Average'],
                 datasets: [
                     { label: 'Calls', data: [mCall, aCall], backgroundColor: '#6a1b9a', borderRadius: 5 },
                     { label: 'Visits', data: [mVisit, aVisit], backgroundColor: '#f39c12', borderRadius: 5 }
@@ -228,7 +228,15 @@
                 maintainAspectRatio: false,
                 plugins: {
                     legend: { position: 'top' },
-                    datalabels: { anchor: 'end', align: 'top', font: { weight: 'bold' }, formatter: Math.round }
+                    datalabels: { 
+                        anchor: 'end', 
+                        align: 'top', 
+                        font: { weight: 'bold' },
+                        // FORMAT 1 DIGIT DESIMAL
+                        formatter: (value) => {
+                            return value.toLocaleString('id-ID', { minimumFractionDigits: 1, maximumFractionDigits: 1 });
+                        }
+                    }
                 },
                 scales: { y: { beginAtZero: true, grace: '20%' } }
             },
@@ -248,7 +256,7 @@
         const ws = XLSX.utils.aoa_to_sheet(data);
         const wb = XLSX.utils.book_new();
         XLSX.utils.book_append_sheet(wb, ws, "Performance");
-        XLSX.writeFile(wb, "MDirect_Performance.xlsx");
+        XLSX.writeFile(wb, "Performance_Sumatera.xlsx");
     }
 </script>
 </body>
