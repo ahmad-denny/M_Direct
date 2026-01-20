@@ -16,9 +16,7 @@
         input, select { padding: 10px; border: 1px solid #ddd; border-radius: 6px; flex: 1; min-width: 150px; }
         .btn { padding: 10px 18px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; color: white; transition: 0.3s; }
         .reset-btn { background: #28a745; } .back-btn { background: #dc3545; } .print-btn { background: #6f42c1; } .export-btn { background: #f39c12; }
-        .btn:hover { opacity: 0.8; }
-        #chartWrapper { display: none; margin-bottom: 30px; padding: 20px; border: 2px solid #6a1b9a; border-radius: 12px; background: #fff; animation: fadeIn 0.5s; }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        #chartWrapper { display: none; margin-bottom: 30px; padding: 20px; border: 2px solid #6a1b9a; border-radius: 12px; background: #fff; }
         .table-container { overflow-x: auto; margin-top: 10px; border-radius: 8px; max-height: 600px; border: 1px solid #eee; }
         table { width: 100%; border-collapse: collapse; font-size: 12px; }
         th, td { padding: 10px 8px; border: 1px solid #ddd; text-align: left; white-space: nowrap; }
@@ -50,13 +48,13 @@
         <button class="btn print-btn" onclick="printTable()">Print</button>
         <button class="btn export-btn" onclick="exportToExcel()">Export XLS</button>
         <button class="btn back-btn" onclick="openPage()">Back</button>
-        <h3 id="time-date" style="width: 100%; font-size: 13px; color: #666; font-style: italic;"></h3>
+        <h3 id="time-date" style="width: 100%; font-size: 13px; color: #666;"></h3>
     </div>
 
     <div id="chartWrapper">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
             <h4 id="chartTitle" style="margin: 0; color: #6a1b9a;">Performance Detail</h4>
-            <button onclick="closeChart()" style="border:none; background:#eee; cursor:pointer; padding:5px 10px; border-radius:4px;">✕ Close Chart</button>
+            <button onclick="closeChart()" style="border:none; background:#eee; cursor:pointer; padding:5px 10px; border-radius:4px;">✕ Close</button>
         </div>
         <div style="height: 350px;"><canvas id="performanceChart"></canvas></div>
     </div>
@@ -75,7 +73,7 @@
 
     function updateTime() {
         const now = new Date();
-        document.getElementById('time-date').innerText = "Update Terakhir: " + now.toLocaleString('id-ID');
+        document.getElementById('time-date').innerText = "Last Update: " + now.toLocaleString('id-ID');
     }
     setInterval(updateTime, 1000);
     updateTime();
@@ -126,7 +124,6 @@
                 if(row['Branch']) branches.add(row['Branch'].toString().trim());
                 if(row['Period']) periods.add(row['Period'].toString().trim());
                 
-                // Mendeteksi kolom posisi secara dinamis (biasanya kolom ke-4 / index 3)
                 const posColName = headers[3]; 
                 if(row[posColName]) positions.add(row[posColName].toString().trim());
             });
@@ -191,11 +188,10 @@
         const wrapper = document.getElementById('chartWrapper');
         const ctx = document.getElementById('performanceChart').getContext('2d');
         wrapper.style.display = 'block';
-        document.getElementById('chartTitle').innerText = "Performance: " + (rowData['Marketing Name'] || rowData['Name'] || "User");
+        document.getElementById('chartTitle').innerText = "Performance Detail: " + (rowData['Marketing Name'] || rowData['Name'] || "User");
 
         if (myChart) myChart.destroy();
 
-        // FUNGSI PENCARIAN KEY (DENGAN FIX DESIMAL)
         const findVal = (target) => {
             const keys = Object.keys(rowData);
             const foundKey = keys.find(k => {
@@ -232,8 +228,12 @@
                         anchor: 'end', 
                         align: 'top', 
                         font: { weight: 'bold' },
-                        // FORMAT 1 DIGIT DESIMAL
-                        formatter: (value) => {
+                        formatter: (value, context) => {
+                            // Jika label kategori adalah 'Total MTD', tampilkan tanpa desimal
+                            if (context.chart.data.labels[context.dataIndex] === 'Total MTD') {
+                                return Math.round(value);
+                            }
+                            // Jika label kategori adalah 'Daily Average', tampilkan 1 digit desimal
                             return value.toLocaleString('id-ID', { minimumFractionDigits: 1, maximumFractionDigits: 1 });
                         }
                     }
