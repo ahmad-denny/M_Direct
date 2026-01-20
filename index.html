@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="id">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -10,354 +9,247 @@
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
 
     <style>
-        body {
-            font-family: 'Segoe UI', Arial, sans-serif;
-            text-align: center;
-            background-color: #f0f2f5;
-            padding: 20px;
-            margin: 0;
-        }
-
-        .container {
-            width: 95%;
-            max-width: 1300px;
-            margin: 0 auto;
-            background: #fff;
-            padding: 20px;
-            border-radius: 12px;
-            box-shadow: 0px 4px 20px rgba(0, 0, 0, 0.08);
-        }
-
-        h2 {
-            color: white;
-            background: linear-gradient(90deg, #6a1b9a, #8e24aa);
-            padding: 15px;
-            border-radius: 8px;
-            margin-top: 0;
-        }
-
-        .filter-container {
-            display: flex;
-            flex-wrap: wrap;
-            align-items: center;
-            gap: 10px;
-            padding: 20px;
-            background: #f8f9fa;
-            border-radius: 10px;
-            margin-bottom: 20px;
-            border: 1px solid #e9ecef;
-        }
-
-        input[type="text"], select {
-            padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 6px;
-            outline: none;
-            flex: 1;
-            min-width: 150px;
-        }
-
-        .btn {
-            padding: 10px 18px;
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
-            font-weight: bold;
-            color: white;
-            font-size: 13px;
-        }
-        .reset-btn { background: #28a745; }
-        .back-btn { background: #dc3545; }
-        .print-btn { background: #6f42c1; }
-        .export-btn { background: #f39c12; }
-
-        /* Area Grafik */
-        #chartWrapper {
-            display: none;
-            margin-bottom: 30px;
-            padding: 20px;
-            background: #fff;
-            border: 2px solid #6a1b9a;
-            border-radius: 12px;
-            box-shadow: 0px 8px 25px rgba(0,0,0,0.1);
-        }
-
-        /* Tabel */
-        .table-container {
-            overflow-x: auto;
-            margin-top: 10px;
-            border-radius: 8px;
-            max-height: 600px;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            font-size: 12px;
-        }
-
-        th, td {
-            padding: 10px 8px;
-            border: 1px solid #ddd;
-            text-align: left;
-            white-space: nowrap;
-        }
-
-        th {
-            background-color: #6a1b9a;
-            color: white;
-            position: sticky;
-            top: 0;
-            z-index: 5;
-        }
-
-        /* Kolom Tersembunyi (Marketing Code biasanya di index ke-2 atau sesuai CSS awal) */
-        th:nth-child(2), td:nth-child(2) { display: none; }
-
-        .highlight-yes { color: #28a745; font-weight: bold; }
+        body { font-family: 'Segoe UI', Arial, sans-serif; background-color: #f0f2f5; padding: 20px; margin: 0; text-align: center; }
+        .container { width: 95%; max-width: 1300px; margin: 0 auto; background: #fff; padding: 20px; border-radius: 12px; box-shadow: 0px 4px 20px rgba(0,0,0,0.08); }
+        h2 { color: white; background: linear-gradient(90deg, #6a1b9a, #8e24aa); padding: 15px; border-radius: 8px; margin-top: 0; }
+        .filter-container { display: flex; flex-wrap: wrap; gap: 10px; padding: 20px; background: #f8f9fa; border-radius: 10px; margin-bottom: 20px; border: 1px solid #e9ecef; }
+        input, select { padding: 10px; border: 1px solid #ddd; border-radius: 6px; flex: 1; min-width: 150px; }
+        .btn { padding: 10px 18px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; color: white; }
+        .reset-btn { background: #28a745; } .back-btn { background: #dc3545; } .print-btn { background: #6f42c1; } .export-btn { background: #f39c12; }
+        #chartWrapper { display: none; margin-bottom: 30px; padding: 20px; border: 2px solid #6a1b9a; border-radius: 12px; background: #fff; }
+        .table-container { overflow-x: auto; margin-top: 10px; border-radius: 8px; max-height: 600px; }
+        table { width: 100%; border-collapse: collapse; font-size: 12px; }
+        th, td { padding: 10px 8px; border: 1px solid #ddd; text-align: left; white-space: nowrap; }
+        th { background-color: #6a1b9a; color: white; position: sticky; top: 0; z-index: 5; }
+        th:nth-child(2), td:nth-child(2) { display: none; } /* Sembunyikan Kode */
         .highlight-red { color: #dc3545; font-weight: bold; }
+        .highlight-yes { color: #28a745; font-weight: bold; }
         .clickable-name { color: #6a1b9a; font-weight: bold; cursor: pointer; text-decoration: underline; }
-
-        @media screen and (max-width: 768px) {
-            .filter-container { flex-direction: column; }
-        }
     </style>
 </head>
-
 <body>
-    <div class="container">
-        <h2>M-Direct Performance Region Sumatera</h2>
 
-        <div class="filter-container">
-            <select id="periodeFilter" onchange="filterAndSearchTable()">
-                <option value="">All Period</option>
-            </select>
+<div class="container">
+    <h2>M-Direct Performance Sumatera</h2>
 
-            <input type="text" id="searchBox" placeholder="Search Name or Code..." onkeyup="filterAndSearchTable()">
-            
-            <select id="positionFilter" onchange="filterAndSearchTable()">
-                <option value="">All Position</option>
-                <option value="RM">RM (All)</option>
-                <option value="RM C">RM Consumer</option>
-                <option value="RM P">RM Prioritas</option>
-                <option value="RM F">RM Funding & Hajj</option>
-                <option value="RM S">RM SME</option>
-                <option value="CS">CS</option>
-            </select>
-
-            <select id="branchFilter" onchange="filterAndSearchTable()">
-                <option value="">All Branch</option>
-            </select>
-
-            <select id="zeroMTDFilter" onchange="filterAndSearchTable()">
-                <option value="">Login MTD (All)</option>
-                <option value="0">NOT Login MTD</option>
-            </select>
-
-            <button class="btn reset-btn" onclick="resetFilter()">Reset</button>
-            <button class="btn print-btn" onclick="printTable()">Print</button>
-            <button class="btn export-btn" onclick="exportToExcel()">Export XLS</button>
-            <button class="btn back-btn" onclick="openPage()">Back</button>
-            
-            <h3 id="time-date" style="width: 100%; font-size: 13px; color: #666; font-style: italic;"></h3>
-        </div>
-
-        <div id="chartWrapper">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
-                <h4 id="chartTitle" style="margin: 0; color: #6a1b9a;">Performance Detail</h4>
-                <button onclick="closeChart()" style="border:none; background:#eee; cursor:pointer; padding:5px 10px; border-radius:4px;">✕ Close</button>
-            </div>
-            <div style="height: 350px;">
-                <canvas id="performanceChart"></canvas>
-            </div>
-        </div>
-
-        <div class="table-container">
-            <table id="dataTable">
-                <thead>
-                    <tr id="tableHead"></tr>
-                </thead>
-                <tbody id="tableBody"></tbody>
-            </table>
-        </div>
+    <div class="filter-container">
+        <select id="periodeFilter" onchange="filterAndSearchTable()"><option value="">All Period</option></select>
+        <input type="text" id="searchBox" placeholder="Search Name or Code..." onkeyup="filterAndSearchTable()">
+        <select id="positionFilter" onchange="filterAndSearchTable()">
+            <option value="">All Position</option>
+            <option value="RM_ALL">RM (All Group)</option>
+        </select>
+        <select id="branchFilter" onchange="filterAndSearchTable()"><option value="">All Branch</option></select>
+        <select id="zeroMTDFilter" onchange="filterAndSearchTable()">
+            <option value="">Login MTD (All)</option>
+            <option value="0">NOT Login MTD</option>
+        </select>
+        <button class="btn reset-btn" onclick="resetFilter()">Reset</button>
+        <button class="btn print-btn" onclick="printTable()">Print</button>
+        <button class="btn export-btn" onclick="exportToExcel()">Export XLS</button>
+        <button class="btn back-btn" onclick="openPage()">Back</button>
+        <h3 id="time-date" style="width: 100%; font-size: 13px; color: #666;"></h3>
     </div>
 
-    <script>
-        let tableData = [];
-        let myChart = null;
+    <div id="chartWrapper">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+            <h4 id="chartTitle" style="margin: 0; color: #6a1b9a;">Performance Detail</h4>
+            <button onclick="closeChart()" style="border:none; background:#eee; cursor:pointer; padding:5px 10px; border-radius:4px;">✕ Close</button>
+        </div>
+        <div style="height: 350px;"><canvas id="performanceChart"></canvas></div>
+    </div>
 
-        // 1. Time Update
-        function updateTime() {
-            const now = new Date();
-            document.getElementById('time-date').innerText = "Last Updated: " + now.toLocaleString('id-ID');
-        }
-        setInterval(updateTime, 1000);
-        updateTime();
+    <div class="table-container">
+        <table id="dataTable">
+            <thead><tr id="tableHead"></tr></thead>
+            <tbody id="tableBody"></tbody>
+        </table>
+    </div>
+</div>
 
-        // 2. Fetch Data
-        fetch('Dataset.json')
-            .then(res => res.json())
-            .then(data => {
-                tableData = data;
-                populateTable(data);
-            })
-            .catch(err => console.error("Error load data:", err));
+<script>
+    let tableData = [];
+    let myChart = null;
 
-        function populateTable(data) {
-            const tableHead = document.getElementById('tableHead');
-            const tableBody = document.getElementById('tableBody');
-            const branchFilter = document.getElementById('branchFilter');
-            const periodeFilter = document.getElementById('periodeFilter');
+    function updateTime() {
+        const now = new Date();
+        document.getElementById('time-date').innerText = "Last Access: " + now.toLocaleString('id-ID');
+    }
+    setInterval(updateTime, 1000);
+    updateTime();
 
-            tableBody.innerHTML = '';
-            let branches = new Set();
-            let periods = new Set();
+    fetch('Dataset.json')
+        .then(res => res.json())
+        .then(data => {
+            tableData = data;
+            populateTable(data);
+        })
+        .catch(err => console.error("Error loading JSON:", err));
 
-            if (data.length > 0) {
-                const headers = Object.keys(data[0]);
-                tableHead.innerHTML = headers.map(h => `<th>${h}</th>`).join('');
+    function populateTable(data) {
+        const tableHead = document.getElementById('tableHead');
+        const tableBody = document.getElementById('tableBody');
+        const branchFilter = document.getElementById('branchFilter');
+        const periodeFilter = document.getElementById('periodeFilter');
+        const positionFilter = document.getElementById('positionFilter');
 
-                data.forEach(row => {
-                    let tr = document.createElement('tr');
-                    headers.forEach((header, index) => {
-                        let td = document.createElement('td');
-                        td.textContent = row[header];
+        tableBody.innerHTML = '';
+        let branches = new Set();
+        let periods = new Set();
+        let positions = new Set();
 
-                        // Clickable Name (Index 2)
-                        if (index === 2) {
-                            td.classList.add('clickable-name');
-                            td.onclick = () => showChart(row);
-                        }
+        if (data.length > 0) {
+            const headers = Object.keys(data[0]);
+            tableHead.innerHTML = headers.map(h => `<th>${h}</th>`).join('');
 
-                        // Coloring logic
-                        if (header.includes("Login MTD") && row[header] == "0") td.classList.add("highlight-red");
-                        if (header.includes("Login DTD") && row[header] === "Y") td.classList.add("highlight-yes");
-                        if (header.includes("Login DTD") && row[header] === "N") td.classList.add("highlight-red");
+            data.forEach(row => {
+                let tr = document.createElement('tr');
+                headers.forEach((header, index) => {
+                    let td = document.createElement('td');
+                    let val = row[header] === null || row[header] === undefined ? "" : row[header];
+                    td.textContent = val;
 
-                        tr.appendChild(td);
-                    });
-                    tableBody.appendChild(tr);
-                    if(row['Branch']) branches.add(row['Branch']);
-                    if(row['Period']) periods.add(row['Period']);
-                });
-
-                updateFilterOptions(branchFilter, branches, 'All Branch');
-                updateFilterOptions(periodeFilter, periods, 'All Period');
-            }
-        }
-
-        // 3. Smart Filter Logic (Fix RM Issue)
-        function filterAndSearchTable() {
-            const sBox = document.getElementById('searchBox').value.toLowerCase();
-            const fPos = document.getElementById('positionFilter').value; 
-            const fBranch = document.getElementById('branchFilter').value.toLowerCase();
-            const fPer = document.getElementById('periodeFilter').value.toLowerCase();
-            const fMTD = document.getElementById('zeroMTDFilter').value;
-
-            document.querySelectorAll('#tableBody tr').forEach(row => {
-                const cells = row.cells;
-                const cellPeriod = cells[0].textContent.toLowerCase();
-                const cellCode = cells[1].textContent.toLowerCase();
-                const cellName = cells[2].textContent.toLowerCase();
-                const cellPos = cells[3].textContent.trim();
-                const cellBranch = cells[4].textContent.toLowerCase();
-                const cellMTD = cells[5].textContent.trim();
-
-                // Logic khusus RM
-                let matchPos = true;
-                if (fPos !== "") {
-                    if (fPos === "RM") {
-                        matchPos = cellPos.startsWith("RM");
-                    } else {
-                        matchPos = (cellPos === fPos);
+                    if (index === 2) { // Kolom Nama
+                        td.classList.add('clickable-name');
+                        td.onclick = () => showChart(row);
                     }
-                }
+                    if (header.includes("Login MTD") && val == "0") td.classList.add("highlight-red");
+                    if (header.includes("Login DTD") && val === "Y") td.classList.add("highlight-yes");
+                    if (header.includes("Login DTD") && val === "N") td.classList.add("highlight-red");
 
-                const matchSearch = cellName.includes(sBox) || cellCode.includes(sBox);
-                const matchBranch = !fBranch || cellBranch === fBranch;
-                const matchPer = !fPer || cellPeriod === fPer;
-                const matchMTD = !fMTD || cellMTD === fMTD;
-
-                row.style.display = (matchSearch && matchPos && matchBranch && matchPer && matchMTD) ? "" : "none";
+                    tr.appendChild(td);
+                });
+                tableBody.appendChild(tr);
+                
+                if(row['Branch']) branches.add(row['Branch'].toString().trim());
+                if(row['Period']) periods.add(row['Period'].toString().trim());
+                // Ambil semua posisi unik dari data
+                const posCol = Object.keys(row)[3]; // Asumsi kolom posisi adalah kolom ke-4
+                if(row[posCol]) positions.add(row[posCol].toString().trim());
             });
+
+            fillSelect(branchFilter, branches, 'All Branch');
+            fillSelect(periodeFilter, periods, 'All Period');
+            // Isi otomatis dropdown posisi berdasarkan data yang ada
+            fillPositionSelect(positionFilter, positions);
         }
+    }
 
-        // 4. Multi-Metric Chart (Fix Empty Call Issue)
-        function showChart(rowData) {
-            const wrapper = document.getElementById('chartWrapper');
-            const ctx = document.getElementById('performanceChart').getContext('2d');
-            wrapper.style.display = 'block';
-            document.getElementById('chartTitle').innerText = `Performance: ${rowData['Marketing Name'] || rowData['Name']}`;
+    function fillSelect(el, set, label) {
+        el.innerHTML = `<option value="">${label}</option>`;
+        Array.from(set).sort().forEach(v => {
+            let opt = document.createElement('option');
+            opt.value = v; opt.textContent = v;
+            el.appendChild(opt);
+        });
+    }
 
-            if (myChart) myChart.destroy();
+    function fillPositionSelect(el, set) {
+        // Reset tapi simpan All Position dan RM (All)
+        el.innerHTML = '<option value="">All Position</option><option value="RM_ALL">RM (All Group)</option>';
+        Array.from(set).sort().forEach(v => {
+            let opt = document.createElement('option');
+            opt.value = v; opt.textContent = v;
+            el.appendChild(opt);
+        });
+    }
 
-            // Helper to find key even with different casing or spaces
-            const val = (keys) => {
-                for (let k of keys) {
-                    if (rowData[k] !== undefined) return parseFloat(rowData[k]) || 0;
-                }
-                return 0;
-            };
+    function filterAndSearchTable() {
+        const sBox = document.getElementById('searchBox').value.toLowerCase();
+        const fPos = document.getElementById('positionFilter').value;
+        const fBranch = document.getElementById('branchFilter').value;
+        const fPer = document.getElementById('periodeFilter').value;
+        const fMTD = document.getElementById('zeroMTDFilter').value;
 
-            const mCall = val(['MTD Call', 'MTD_Call', 'mtd call']);
-            const mVisit = val(['MTD Visit', 'MTD_Visit', 'mtd visit']);
-            const aCall = val(['AVG Call', 'Avg Call', 'AVG_Call', 'avg call']);
-            const aVisit = val(['AVG Visit', 'Avg Visit', 'AVG_Visit', 'avg visit']);
+        document.querySelectorAll('#tableBody tr').forEach(row => {
+            const cells = row.cells;
+            const cPer = cells[0].textContent.trim();
+            const cCode = cells[1].textContent.toLowerCase();
+            const cName = cells[2].textContent.toLowerCase();
+            const cPos = cells[3].textContent.trim();
+            const cBranch = cells[4].textContent.trim();
+            const cMTD = cells[5].textContent.trim();
 
-            myChart = new Chart(ctx, {
-                type: 'bar',
-                data: {
-                    labels: ['MTD Total', 'Daily Average'],
-                    datasets: [
-                        { label: 'Calls', data: [mCall, aCall], backgroundColor: '#6a1b9a', borderRadius: 5 },
-                        { label: 'Visits', data: [mVisit, aVisit], backgroundColor: '#f39c12', borderRadius: 5 }
-                    ]
+            let matchPos = true;
+            if (fPos === "RM_ALL") {
+                matchPos = cPos.startsWith("RM");
+            } else if (fPos !== "") {
+                matchPos = (cPos === fPos);
+            }
+
+            const matchSearch = cName.includes(sBox) || cCode.includes(sBox);
+            const matchBranch = !fBranch || cBranch === fBranch;
+            const matchPer = !fPer || cPer === fPer;
+            const matchMTD = !fMTD || cMTD === fMTD;
+
+            row.style.display = (matchSearch && matchPos && matchBranch && matchPer && matchMTD) ? "" : "none";
+        });
+    }
+
+    function showChart(rowData) {
+        const wrapper = document.getElementById('chartWrapper');
+        const ctx = document.getElementById('performanceChart').getContext('2d');
+        wrapper.style.display = 'block';
+        document.getElementById('chartTitle').innerText = "Performance: " + (rowData['Marketing Name'] || rowData['Name'] || "User");
+
+        if (myChart) myChart.destroy();
+
+        // FUNGSI PENCARIAN KEY FLEXIBEL (Mencegah Avg Call Kosong)
+        const findVal = (target) => {
+            const keys = Object.keys(rowData);
+            // Cari key yang mengandung kata target (misal 'AVG' dan 'Call') tanpa peduli case
+            const foundKey = keys.find(k => {
+                const search = target.toLowerCase().split(' ');
+                return search.every(word => k.toLowerCase().includes(word));
+            });
+            if (foundKey) {
+                let val = rowData[foundKey];
+                return parseFloat(val.toString().replace(',', '.')) || 0;
+            }
+            return 0;
+        };
+
+        const mCall = findVal('MTD Call');
+        const mVisit = findVal('MTD Visit');
+        const aCall = findVal('AVG Call');
+        const aVisit = findVal('AVG Visit');
+
+        myChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: ['MTD Total', 'Daily Average'],
+                datasets: [
+                    { label: 'Calls', data: [mCall, aCall], backgroundColor: '#6a1b9a', borderRadius: 5 },
+                    { label: 'Visits', data: [mVisit, aVisit], backgroundColor: '#f39c12', borderRadius: 5 }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { position: 'top' },
+                    datalabels: { anchor: 'end', align: 'top', font: { weight: 'bold' }, formatter: Math.round }
                 },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: { position: 'top' },
-                        datalabels: { anchor: 'end', align: 'top', font: { weight: 'bold' } }
-                    },
-                    scales: { y: { beginAtZero: true, grace: '15%' } }
-                },
-                plugins: [ChartDataLabels]
-            });
-            wrapper.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        }
+                scales: { y: { beginAtZero: true, grace: '20%' } }
+            },
+            plugins: [ChartDataLabels]
+        });
+        wrapper.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
 
-        function closeChart() { document.getElementById('chartWrapper').style.display = 'none'; }
-
-        function updateFilterOptions(filterElement, values, defaultLabel) {
-            const current = filterElement.value;
-            filterElement.innerHTML = `<option value="">${defaultLabel}</option>`;
-            Array.from(values).sort().forEach(v => {
-                let opt = document.createElement('option');
-                opt.value = v; opt.textContent = v;
-                filterElement.appendChild(opt);
-            });
-            filterElement.value = current;
-        }
-
-        function resetFilter() {
-            document.querySelectorAll('select, input[type="text"]').forEach(i => i.value = "");
-            filterAndSearchTable();
-            closeChart();
-        }
-
-        function exportToExcel() {
-            const table = document.getElementById("dataTable");
-            const visibleRows = Array.from(table.rows).filter(r => r.style.display !== "none");
-            const data = visibleRows.map(row => Array.from(row.cells).filter((_, i) => i !== 1).map(c => c.textContent.trim()));
-            const ws = XLSX.utils.aoa_to_sheet(data);
-            const wb = XLSX.utils.book_new();
-            XLSX.utils.book_append_sheet(wb, ws, "Data");
-            XLSX.writeFile(wb, "Performance_Sumatera.xlsx");
-        }
-
-        function printTable() { window.print(); }
-        function openPage() { window.location.href = 'https://bmi-apps.github.io/regionsumatera/'; }
-    </script>
+    function closeChart() { document.getElementById('chartWrapper').style.display = 'none'; }
+    function resetFilter() { document.querySelectorAll('select, input').forEach(i => i.value = ""); filterAndSearchTable(); closeChart(); }
+    function printTable() { window.print(); }
+    function openPage() { window.location.href = 'https://bmi-apps.github.io/regionsumatera/'; }
+    function exportToExcel() {
+        const table = document.getElementById("dataTable");
+        const visibleRows = Array.from(table.rows).filter(r => r.style.display !== "none");
+        const data = visibleRows.map(row => Array.from(row.cells).filter((_, i) => i !== 1).map(c => c.textContent.trim()));
+        const ws = XLSX.utils.aoa_to_sheet(data);
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, "Performance");
+        XLSX.writeFile(wb, "MDirect_Performance.xlsx");
+    }
+</script>
 </body>
 </html>
