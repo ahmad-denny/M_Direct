@@ -21,7 +21,7 @@
 
         .container {
             width: 95%;
-            max-width: 1200px;
+            max-width: 1250px;
             margin: 0 auto;
             background: #fff;
             padding: 20px;
@@ -35,15 +35,15 @@
             padding: 15px;
             border-radius: 8px;
             margin-top: 0;
+            margin-bottom: 10px;
         }
 
         h3 {
             text-align: center;
-            font-size: 13px;
-            font-style: italic;
-            font-weight: lighter;
-            margin: 10px 0 0;
-            color: #555;
+            font-size: 14px;
+            font-weight: 500;
+            margin: 10px 0;
+            color: #444;
         }
 
         /* Filter dan Tombol */
@@ -66,17 +66,18 @@
             border-radius: 6px;
             outline: none;
             flex: 1;
-            min-width: 150px;
+            min-width: 160px;
         }
 
         .btn {
-            padding: 10px 20px;
+            padding: 10px 18px;
             border: none;
             border-radius: 6px;
             cursor: pointer;
             font-weight: bold;
             transition: 0.3s;
             color: white;
+            font-size: 13px;
         }
         .reset-btn { background: #28a745; }
         .reset-btn:hover { background: #218838; }
@@ -87,21 +88,27 @@
         .export-btn { background: #f39c12; }
         .export-btn:hover { background: #e67e22; }
 
-        /* Grafik Container */
+        /* Grafik Area */
         #chartWrapper {
             display: none;
             margin-bottom: 30px;
-            padding: 20px;
+            padding: 25px;
             background: #fff;
-            border: 1px solid #ddd;
+            border: 2px solid #6a1b9a;
             border-radius: 12px;
-            box-shadow: 0px 2px 10px rgba(0,0,0,0.05);
+            box-shadow: 0px 10px 30px rgba(0,0,0,0.1);
+            animation: fadeIn 0.5s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
         /* Tabel */
         .table-container {
             overflow-x: auto;
-            margin-top: 20px;
+            margin-top: 10px;
             border-radius: 8px;
             border: 1px solid #eee;
         }
@@ -109,29 +116,37 @@
         table {
             width: 100%;
             border-collapse: collapse;
-            font-size: 13px;
+            font-size: 12.5px;
         }
 
         th, td {
-            padding: 10px;
+            padding: 12px 8px;
             border: 1px solid #ddd;
             text-align: left;
+            white-space: nowrap;
         }
 
         th {
-            background-color: purple;
+            background-color: #6a1b9a;
             color: white;
             position: sticky;
             top: 0;
+            z-index: 10;
         }
 
-        /* Kolom ke-2 disembunyikan (Marketing Code biasanya) */
+        /* Kolom Tersembunyi (Marketing Code) */
         table td:nth-child(2), th:nth-child(2) { display: none; }
 
         /* Highlight */
         .highlight-yes { color: #28a745; font-weight: bold; }
         .highlight-no, .highlight-red { color: #dc3545; font-weight: bold; }
-        .clickable-name { color: #6a1b9a; font-weight: bold; cursor: pointer; text-decoration: underline; }
+        .clickable-name { 
+            color: #6a1b9a; 
+            font-weight: bold; 
+            cursor: pointer; 
+            text-decoration: underline; 
+        }
+        .clickable-name:hover { color: #8e24aa; }
 
         @media screen and (max-width: 768px) {
             .filter-container { flex-direction: column; align-items: stretch; }
@@ -148,7 +163,7 @@
                 <option value="">All Period</option>
             </select>
 
-            <input type="text" id="searchBox" placeholder="Search Name..." onkeyup="filterAndSearchTable()">
+            <input type="text" id="searchBox" placeholder="Search Name or Code..." onkeyup="filterAndSearchTable()">
             
             <select id="positionFilter" onchange="filterAndSearchTable()">
                 <option value="">All Position</option>
@@ -174,11 +189,14 @@
         </div>
 
         <div id="chartWrapper">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
-                <h4 id="chartTitle" style="margin: 0; color: #6a1b9a;">Marketing Performance</h4>
-                <button onclick="closeChart()" style="cursor:pointer; border:none; background:#eee; border-radius:4px; padding: 5px 10px;">✕ Close</button>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                <div style="text-align: left;">
+                    <h4 id="chartTitle" style="margin: 0; color: #6a1b9a; font-size: 18px;">Performance Graph</h4>
+                    <small style="color: #666;">Comparing Calls vs Visits (Monthly & Daily Avg)</small>
+                </div>
+                <button onclick="closeChart()" style="cursor:pointer; border:none; background:#ff4444; color:white; border-radius:4px; padding: 8px 15px; font-weight:bold;">✕ Close Chart</button>
             </div>
-            <div style="height: 300px;">
+            <div style="height: 350px;">
                 <canvas id="performanceChart"></canvas>
             </div>
         </div>
@@ -201,12 +219,12 @@
         function updateTime() {
             const now = new Date();
             const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit' };
-            document.getElementById('time-date').innerText = now.toLocaleDateString('id-ID', options);
+            document.getElementById('time-date').innerText = "Waktu Akses: " + now.toLocaleDateString('id-ID', options);
         }
         setInterval(updateTime, 1000);
         updateTime();
 
-        // 2. Load Data
+        // 2. Load Data dari Dataset.json
         fetch('Dataset.json')
             .then(response => response.json())
             .then(data => {
@@ -226,28 +244,25 @@
             let periods = new Set();
 
             if (data.length > 0) {
-                // Render Header
                 const headers = Object.keys(data[0]);
                 tableHead.innerHTML = headers.map(h => `<th>${h}</th>`).join('');
 
-                // Render Body
                 data.forEach(row => {
                     let tr = document.createElement('tr');
                     headers.forEach((header, index) => {
                         let td = document.createElement('td');
                         td.textContent = row[header];
 
-                        // Index 2 biasanya 'Marketing Name' - Buat jadi bisa diklik
+                        // Nama Marketing (Indeks 2) - Jadikan pemicu grafik
                         if (index === 2) {
                             td.classList.add('clickable-name');
+                            td.title = "Klik untuk lihat detail grafik performa";
                             td.onclick = () => showChart(row);
                         }
 
-                        // Highlight Login MTD (Index 5)
-                        if (index === 5 && row[header] == "0") td.classList.add("highlight-red");
-                        
-                        // Highlight Login DTD (Index 6)
-                        if (index === 6) {
+                        // Logika Pewarnaan (Highlight)
+                        if (header === "Login MTD" && row[header] == "0") td.classList.add("highlight-red");
+                        if (header === "Login DTD") {
                             if (row[header] === "Y") td.classList.add("highlight-yes");
                             if (row[header] === "N") td.classList.add("highlight-no");
                         }
@@ -255,8 +270,8 @@
                         tr.appendChild(td);
                     });
                     tableBody.appendChild(tr);
-                    branches.add(row['Branch']);
-                    periods.add(row['Period']);
+                    if(row['Branch']) branches.add(row['Branch']);
+                    if(row['Period']) periods.add(row['Period']);
                 });
 
                 updateFilterOptions(branchFilter, branches, 'All Branch');
@@ -264,61 +279,80 @@
             }
         }
 
-        // 3. Fungsi Grafik Detail
+        // 3. Fungsi Grafik Multi-Metric (Call & Visit)
         function showChart(rowData) {
             const wrapper = document.getElementById('chartWrapper');
             const ctx = document.getElementById('performanceChart').getContext('2d');
             
             wrapper.style.display = 'block';
-            document.getElementById('chartTitle').innerText = `Performance Detail: ${rowData['Marketing Name'] || 'User'}`;
+            document.getElementById('chartTitle').innerText = `Detail Performa: ${rowData['Marketing Name'] || rowData['Name']}`;
 
             if (myChart) myChart.destroy();
 
-            // Data yang akan ditampilkan (MTD Login)
-            const mtdValue = parseFloat(rowData['Login MTD']) || 0;
+            // Ambil data Call vs Visit dari JSON (sesuaikan nama field)
+            const mtdCall = parseFloat(rowData['MTD Call']) || 0;
+            const mtdVisit = parseFloat(rowData['MTD Visit']) || 0;
+            const avgCall = parseFloat(rowData['AVG Call']) || 0;
+            const avgVisit = parseFloat(rowData['AVG Visit']) || 0;
 
             myChart = new Chart(ctx, {
                 type: 'bar',
                 data: {
-                    labels: ['Login MTD'],
-                    datasets: [{
-                        label: 'Activity Count',
-                        data: [mtdValue],
-                        backgroundColor: '#8e24aa',
-                        borderRadius: 8
-                    }]
+                    labels: ['Total MTD (Accumulated)', 'Daily Average'],
+                    datasets: [
+                        {
+                            label: 'Calls',
+                            data: [mtdCall, avgCall],
+                            backgroundColor: '#6a1b9a', // Ungu
+                            borderRadius: 6
+                        },
+                        {
+                            label: 'Visits',
+                            data: [mtdVisit, avgVisit],
+                            backgroundColor: '#f39c12', // Oranye
+                            borderRadius: 6
+                        }
+                    ]
                 },
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
                     plugins: {
-                        legend: { display: false },
+                        legend: { position: 'top' },
                         datalabels: {
-                            color: '#fff',
-                            anchor: 'center',
-                            align: 'center',
-                            font: { weight: 'bold', size: 16 }
+                            anchor: 'end',
+                            align: 'top',
+                            color: '#444',
+                            font: { weight: 'bold' },
+                            formatter: (val) => val.toLocaleString('id-ID')
                         }
                     },
-                    scales: { y: { beginAtZero: true } }
+                    scales: {
+                        y: { beginAtZero: true, grid: { color: '#eee' } },
+                        x: { grid: { display: false } }
+                    }
                 },
                 plugins: [ChartDataLabels]
             });
-            wrapper.scrollIntoView({ behavior: 'smooth' });
+
+            // Gerakan scroll halus ke posisi grafik
+            wrapper.scrollIntoView({ behavior: 'smooth', block: 'center' });
         }
 
         function closeChart() {
             document.getElementById('chartWrapper').style.display = 'none';
         }
 
-        // 4. Filtering Logic
+        // 4. Filtering & Search
         function updateFilterOptions(filterElement, values, defaultLabel) {
+            const currentVal = filterElement.value;
             filterElement.innerHTML = `<option value="">${defaultLabel}</option>`;
             Array.from(values).sort().forEach(value => {
                 let option = document.createElement('option');
                 option.value = value; option.textContent = value;
                 filterElement.appendChild(option);
             });
+            filterElement.value = currentVal;
         }
 
         function filterAndSearchTable() {
@@ -330,7 +364,8 @@
 
             document.querySelectorAll('#tableBody tr').forEach(row => {
                 const cells = row.cells;
-                const matchName = cells[2].textContent.toLowerCase().includes(sBox);
+                // Asumsi Nama di index 2, Kode di index 1, Posisi 3, Cabang 4, MTD 5
+                const matchName = cells[2].textContent.toLowerCase().includes(sBox) || cells[1].textContent.toLowerCase().includes(sBox);
                 const matchPos = !fPos || cells[3].textContent.toLowerCase().includes(fPos);
                 const matchBranch = !fBranch || cells[4].textContent.toLowerCase() === fBranch;
                 const matchPer = !fPer || cells[0].textContent.toLowerCase() === fPer;
@@ -341,25 +376,32 @@
         }
 
         function resetFilter() {
-            document.querySelectorAll('.filter-container select, .filter-container input').forEach(el => el.value = "");
+            document.getElementById('searchBox').value = "";
+            document.getElementById('positionFilter').value = "";
+            document.getElementById('branchFilter').value = "";
+            document.getElementById('periodeFilter').value = "";
+            document.getElementById('zeroMTDFilter').value = "";
             filterAndSearchTable();
             closeChart();
         }
 
-        // 5. Export & Utility
+        // 5. Excel Export
         function exportToExcel() {
             const table = document.getElementById("dataTable");
             const visibleRows = Array.from(table.rows).filter(row => row.style.display !== "none");
+            
             const cleanData = visibleRows.map(row => 
                 Array.from(row.cells)
-                .filter((_, i) => i !== 1) // Hapus kolom ke-2 (Marketing Code)
+                .filter((_, i) => i !== 1) // Abaikan Marketing Code
                 .map(cell => cell.textContent.trim())
             );
             
+            if (cleanData.length <= 1) return alert("Pilih data terlebih dahulu!");
+
             const ws = XLSX.utils.aoa_to_sheet(cleanData);
             const wb = XLSX.utils.book_new();
             XLSX.utils.book_append_sheet(wb, ws, "Performance");
-            XLSX.writeFile(wb, `Performance_Sumatera_${new Date().toLocaleDateString()}.xlsx`);
+            XLSX.writeFile(wb, `Performance_Sumatera_${new Date().toISOString().split('T')[0]}.xlsx`);
         }
 
         function printTable() { window.print(); }
