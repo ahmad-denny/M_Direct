@@ -42,7 +42,8 @@
             font-size: 13px;
             font-style: italic;
             font-weight: lighter;
-            margin: 5px 0 0;
+            margin: 10px 0 0;
+            color: #555;
         }
 
         /* Filter dan Tombol */
@@ -83,10 +84,19 @@
         .back-btn:hover { background: #c82333; }
         .print-btn { background: #6f42c1; }
         .print-btn:hover { background: #5a32a3; }
-        
-        /* Gaya Tombol Export Baru */
         .export-btn { background: #f39c12; }
         .export-btn:hover { background: #e67e22; }
+
+        /* Grafik Container */
+        #chartWrapper {
+            display: none;
+            margin-bottom: 30px;
+            padding: 20px;
+            background: #fff;
+            border: 1px solid #ddd;
+            border-radius: 12px;
+            box-shadow: 0px 2px 10px rgba(0,0,0,0.05);
+        }
 
         /* Tabel */
         .table-container {
@@ -100,50 +110,31 @@
             width: 100%;
             border-collapse: collapse;
             font-size: 13px;
-            table-layout: auto;
         }
 
         th, td {
-            padding: 8px;
+            padding: 10px;
             border: 1px solid #ddd;
             text-align: left;
-        }
-
-        td {
-            text-align: left;
-            white-space: nowrap;
         }
 
         th {
             background-color: purple;
             color: white;
+            position: sticky;
+            top: 0;
         }
 
-        /* Highlight dan Kolom Tersembunyi */
+        /* Kolom ke-2 disembunyikan (Marketing Code biasanya) */
+        table td:nth-child(2), th:nth-child(2) { display: none; }
+
+        /* Highlight */
         .highlight-yes { color: #28a745; font-weight: bold; }
         .highlight-no, .highlight-red { color: #dc3545; font-weight: bold; }
+        .clickable-name { color: #6a1b9a; font-weight: bold; cursor: pointer; text-decoration: underline; }
 
-        table td:nth-child(n+6),
-        table th:nth-child(n+6) {
-            text-align: center;
-        }
-
-        /* Kolom ke-2 disembunyikan */
-        table td:nth-child(2),
-        th:nth-child(2) {
-            display: none;
-        }
-
-        /* Responsif */
         @media screen and (max-width: 768px) {
-            .filter-container {
-                flex-direction: column;
-                align-items: stretch;
-            }
-            input, select, .btn {
-                width: 100%;
-                max-width: none;
-            }
+            .filter-container { flex-direction: column; align-items: stretch; }
         }
     </style>
 </head>
@@ -153,20 +144,15 @@
         <h2>M-Direct Performance Region Sumatera</h2>
 
         <div class="filter-container">
-
             <select id="periodeFilter" onchange="filterAndSearchTable()">
                 <option value="">All Period</option>
             </select>
 
-            <input type="text" id="searchBox" placeholder="Name or Marketing Code..." onkeyup="filterAndSearchTable()">
+            <input type="text" id="searchBox" placeholder="Search Name..." onkeyup="filterAndSearchTable()">
             
             <select id="positionFilter" onchange="filterAndSearchTable()">
                 <option value="">All Position</option>
                 <option value="RM">RM</option>
-                <option value="RM C">RM Consumer</option>
-                <option value="RM P">RM Prioritas</option>
-                <option value="RM F">RM Funding & Hajj</option>
-                <option value="RM S">RM SME</option>
                 <option value="CS">CS</option>
             </select>
 
@@ -175,22 +161,26 @@
             </select>
 
             <select id="zeroMTDFilter" onchange="filterAndSearchTable()">
-                <option value="">Login MTD</option>
+                <option value="">Login MTD (All)</option>
                 <option value="0">NOT Login MTD</option>
             </select>
 
-            <select id="zeroDTDFilter" onchange="filterAndSearchTable()">
-                <option value="">Login DTD</option>
-                <option value="N">NOT Login DTD</option>
-            </select>
-
             <button class="btn reset-btn" onclick="resetFilter()">Reset</button>
-            <button class="btn back-btn" onclick="openPage()">Back</button>
             <button class="btn print-btn" onclick="printTable()">Print</button>
             <button class="btn export-btn" onclick="exportToExcel()">Export XLS</button>
+            <button class="btn back-btn" onclick="openPage()">Back</button>
 
             <h3 id="time-date"></h3> 
+        </div>
 
+        <div id="chartWrapper">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                <h4 id="chartTitle" style="margin: 0; color: #6a1b9a;">Marketing Performance</h4>
+                <button onclick="closeChart()" style="cursor:pointer; border:none; background:#eee; border-radius:4px; padding: 5px 10px;">✕ Close</button>
+            </div>
+            <div style="height: 300px;">
+                <canvas id="performanceChart"></canvas>
+            </div>
         </div>
 
         <div class="table-container">
@@ -205,15 +195,24 @@
 
     <script>
         let tableData = [];
-        let myChart;
+        let myChart = null;
 
-        // Load Data
+        // 1. Update Waktu Real-time
+        function updateTime() {
+            const now = new Date();
+            const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit' };
+            document.getElementById('time-date').innerText = now.toLocaleDateString('id-ID', options);
+        }
+        setInterval(updateTime, 1000);
+        updateTime();
+
+        // 2. Load Data
         fetch('Dataset.json')
-            .then(response => {
-                if (!response.ok) throw new Error('Network response was not ok');
-                return response.json();
+            .then(response => response.json())
+            .then(data => {
+                tableData = data;
+                populateTable(data);
             })
-            .then(data => populateTable(data))
             .catch(error => console.error('Error loading JSON:', error));
 
         function populateTable(data) {
@@ -223,33 +222,38 @@
             const periodeFilter = document.getElementById('periodeFilter');
 
             tableBody.innerHTML = '';
-            tableData = data;
             let branches = new Set();
             let periods = new Set();
 
             if (data.length > 0) {
-                tableHead.innerHTML = Object.keys(data[0]).map(header => `<th>${header}</th>`).join('');
+                // Render Header
+                const headers = Object.keys(data[0]);
+                tableHead.innerHTML = headers.map(h => `<th>${h}</th>`).join('');
 
+                // Render Body
                 data.forEach(row => {
                     let tr = document.createElement('tr');
-                    Object.values(row).forEach(cell => {
+                    headers.forEach((header, index) => {
                         let td = document.createElement('td');
-                        td.textContent = cell;
+                        td.textContent = row[header];
+
+                        // Index 2 biasanya 'Marketing Name' - Buat jadi bisa diklik
+                        if (index === 2) {
+                            td.classList.add('clickable-name');
+                            td.onclick = () => showChart(row);
+                        }
+
+                        // Highlight Login MTD (Index 5)
+                        if (index === 5 && row[header] == "0") td.classList.add("highlight-red");
+                        
+                        // Highlight Login DTD (Index 6)
+                        if (index === 6) {
+                            if (row[header] === "Y") td.classList.add("highlight-yes");
+                            if (row[header] === "N") td.classList.add("highlight-no");
+                        }
+
                         tr.appendChild(td);
                     });
-
-                    // Highlight logic
-                    let loginMTDCell = tr.cells[5];
-                    if (loginMTDCell && loginMTDCell.textContent === "0") {
-                        loginMTDCell.classList.add("highlight-red");
-                    }
-
-                    let loginDTDCell = tr.cells[6];
-                    if (loginDTDCell) {
-                        if (loginDTDCell.textContent === "Y") loginDTDCell.classList.add("highlight-yes");
-                        else if (loginDTDCell.textContent === "N") loginDTDCell.classList.add("highlight-no");
-                    }
-
                     tableBody.appendChild(tr);
                     branches.add(row['Branch']);
                     periods.add(row['Period']);
@@ -257,122 +261,109 @@
 
                 updateFilterOptions(branchFilter, branches, 'All Branch');
                 updateFilterOptions(periodeFilter, periods, 'All Period');
-                renderChart();
             }
         }
 
+        // 3. Fungsi Grafik Detail
+        function showChart(rowData) {
+            const wrapper = document.getElementById('chartWrapper');
+            const ctx = document.getElementById('performanceChart').getContext('2d');
+            
+            wrapper.style.display = 'block';
+            document.getElementById('chartTitle').innerText = `Performance Detail: ${rowData['Marketing Name'] || 'User'}`;
+
+            if (myChart) myChart.destroy();
+
+            // Data yang akan ditampilkan (MTD Login)
+            const mtdValue = parseFloat(rowData['Login MTD']) || 0;
+
+            myChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['Login MTD'],
+                    datasets: [{
+                        label: 'Activity Count',
+                        data: [mtdValue],
+                        backgroundColor: '#8e24aa',
+                        borderRadius: 8
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        datalabels: {
+                            color: '#fff',
+                            anchor: 'center',
+                            align: 'center',
+                            font: { weight: 'bold', size: 16 }
+                        }
+                    },
+                    scales: { y: { beginAtZero: true } }
+                },
+                plugins: [ChartDataLabels]
+            });
+            wrapper.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function closeChart() {
+            document.getElementById('chartWrapper').style.display = 'none';
+        }
+
+        // 4. Filtering Logic
         function updateFilterOptions(filterElement, values, defaultLabel) {
             filterElement.innerHTML = `<option value="">${defaultLabel}</option>`;
             Array.from(values).sort().forEach(value => {
                 let option = document.createElement('option');
-                option.value = value;
-                option.textContent = value;
+                option.value = value; option.textContent = value;
                 filterElement.appendChild(option);
             });
         }
 
         function filterAndSearchTable() {
-            const searchValue = document.getElementById('searchBox').value.toLowerCase();
-            const positionValue = document.getElementById('positionFilter').value.toLowerCase();
-            const branchValue = document.getElementById('branchFilter').value.toLowerCase();
-            const periodeValue = document.getElementById('periodeFilter').value.toLowerCase();
-            const zeroMTDValue = document.getElementById('zeroMTDFilter').value.toLowerCase();
-            const zeroDTDValue = document.getElementById('zeroDTDFilter').value.toLowerCase();
+            const sBox = document.getElementById('searchBox').value.toLowerCase();
+            const fPos = document.getElementById('positionFilter').value.toLowerCase();
+            const fBranch = document.getElementById('branchFilter').value.toLowerCase();
+            const fPer = document.getElementById('periodeFilter').value.toLowerCase();
+            const fMTD = document.getElementById('zeroMTDFilter').value;
 
-            document.getElementById('tableBody').querySelectorAll('tr').forEach(row => {
-                let cells = row.getElementsByTagName('td');
-                let nameMarketingMatch = searchValue === "" ||
-                    (cells[1] && cells[1].textContent.toLowerCase().includes(searchValue)) ||
-                    (cells[2] && cells[2].textContent.toLowerCase().includes(searchValue));
+            document.querySelectorAll('#tableBody tr').forEach(row => {
+                const cells = row.cells;
+                const matchName = cells[2].textContent.toLowerCase().includes(sBox);
+                const matchPos = !fPos || cells[3].textContent.toLowerCase().includes(fPos);
+                const matchBranch = !fBranch || cells[4].textContent.toLowerCase() === fBranch;
+                const matchPer = !fPer || cells[0].textContent.toLowerCase() === fPer;
+                const matchMTD = !fMTD || cells[5].textContent === fMTD;
 
-                let positionMatch = positionValue === "" || (cells[3] && cells[3].textContent.trim().toLowerCase().includes(positionValue));
-                let branchMatch = branchValue === "" || (cells[4] && cells[4].textContent.toLowerCase() === branchValue);
-                let periodeMatch = periodeValue === "" || (cells[0] && cells[0].textContent.toLowerCase() === periodeValue);
-                let zeroMTDMatch = zeroMTDValue === "" || (cells[5] && cells[5].textContent.toLowerCase() === zeroMTDValue);
-                let zeroDTDMatch = zeroDTDValue === "" || (cells[6] && cells[6].textContent.toLowerCase() === zeroDTDValue);
-
-                row.style.display = (nameMarketingMatch && positionMatch && branchMatch && periodeMatch && zeroMTDMatch && zeroDTDMatch) ? "" : "none";
+                row.style.display = (matchName && matchPos && matchBranch && matchPer && matchMTD) ? "" : "none";
             });
-            renderChart();
         }
 
         function resetFilter() {
-            document.getElementById('searchBox').value = "";
-            document.getElementById('positionFilter').value = "";
-            document.getElementById('branchFilter').value = "";
-            document.getElementById('periodeFilter').value = "";
-            document.getElementById('zeroMTDFilter').value = "";
-            document.getElementById('zeroDTDFilter').value = "";
+            document.querySelectorAll('.filter-container select, .filter-container input').forEach(el => el.value = "");
             filterAndSearchTable();
+            closeChart();
         }
 
-        function printTable() {
-            window.print();
-        }
-
-        function openPage() {
-            window.location.href = 'https://bmi-apps.github.io/regionsumatera/';
-        }
-
-        // FUNGSI EXPORT XLS
+        // 5. Export & Utility
         function exportToExcel() {
             const table = document.getElementById("dataTable");
-            const rows = Array.from(table.rows);
+            const visibleRows = Array.from(table.rows).filter(row => row.style.display !== "none");
+            const cleanData = visibleRows.map(row => 
+                Array.from(row.cells)
+                .filter((_, i) => i !== 1) // Hapus kolom ke-2 (Marketing Code)
+                .map(cell => cell.textContent.trim())
+            );
             
-            // 1. Ambil data yang terlihat & kolom yang tidak disembunyikan
-            const cleanData = rows.filter(row => row.style.display !== "none")
-                .map(row => {
-                    return Array.from(row.cells)
-                        .filter(cell => {
-                            const style = window.getComputedStyle(cell);
-                            return style.display !== "none";
-                        })
-                        .map(cell => cell.textContent.trim());
-                });
-        
-            if (cleanData.length === 0) {
-                alert("Tidak ada data untuk di-export!");
-                return;
-            }
-        
-            // 2. Buat Worksheet
             const ws = XLSX.utils.aoa_to_sheet(cleanData);
-        
-            // 3. Atur Lebar Kolom Otomatis (Auto-fit)
-            const colWidths = cleanData[0].map((_, colIndex) => {
-                let maxLen = Math.max(
-                    ...cleanData.map(row => (row[colIndex] ? row[colIndex].toString().length : 0))
-                );
-                return { wch: maxLen + 5 };
-            });
-            ws['!cols'] = colWidths;
-        
-            /** * CATATAN STYLING:
-             * Library xlsx.full.min.js versi Community (gratis) tidak mendukung 
-             * penulisan warna sel (cell fill/background) ke file .xlsx secara langsung. 
-             * Fitur ini hanya tersedia di versi Pro.
-             * * Sebagai alternatif terbaik, kita pastikan data header 
-             * menggunakan huruf kapital agar terlihat sebagai pembeda di Excel.
-             */
-        
-            // 4. Buat Workbook
             const wb = XLSX.utils.book_new();
             XLSX.utils.book_append_sheet(wb, ws, "Performance");
-        
-            // 5. Penamaan File
-            const today = new Date().toISOString().split('T')[0];
-            const fileName = `Performance_Sumatera_${today}.xlsx`;
-        
-            // 6. Download
-            XLSX.writeFile(wb, fileName);
+            XLSX.writeFile(wb, `Performance_Sumatera_${new Date().toLocaleDateString()}.xlsx`);
         }
-        function renderChart() {
-            const chartCanvas = document.getElementById('performanceChart');
-            if (!chartCanvas) return;
-        }
+
+        function printTable() { window.print(); }
+        function openPage() { window.location.href = 'https://bmi-apps.github.io/regionsumatera/'; }
     </script>
 </body>
 </html>
-
-
-
