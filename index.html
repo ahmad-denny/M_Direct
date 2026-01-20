@@ -10,7 +10,6 @@
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
 
     <style>
-        /* Gaya Dasar */
         body {
             font-family: 'Segoe UI', Arial, sans-serif;
             text-align: center;
@@ -21,7 +20,7 @@
 
         .container {
             width: 95%;
-            max-width: 1250px;
+            max-width: 1300px;
             margin: 0 auto;
             background: #fff;
             padding: 20px;
@@ -35,18 +34,8 @@
             padding: 15px;
             border-radius: 8px;
             margin-top: 0;
-            margin-bottom: 10px;
         }
 
-        h3 {
-            text-align: center;
-            font-size: 14px;
-            font-weight: 500;
-            margin: 10px 0;
-            color: #444;
-        }
-
-        /* Filter dan Tombol */
         .filter-container {
             display: flex;
             flex-wrap: wrap;
@@ -59,14 +48,13 @@
             border: 1px solid #e9ecef;
         }
 
-        input[type="text"],
-        select {
+        input[type="text"], select {
             padding: 10px;
             border: 1px solid #ddd;
             border-radius: 6px;
             outline: none;
             flex: 1;
-            min-width: 160px;
+            min-width: 150px;
         }
 
         .btn {
@@ -75,34 +63,23 @@
             border-radius: 6px;
             cursor: pointer;
             font-weight: bold;
-            transition: 0.3s;
             color: white;
             font-size: 13px;
         }
         .reset-btn { background: #28a745; }
-        .reset-btn:hover { background: #218838; }
         .back-btn { background: #dc3545; }
-        .back-btn:hover { background: #c82333; }
         .print-btn { background: #6f42c1; }
-        .print-btn:hover { background: #5a32a3; }
         .export-btn { background: #f39c12; }
-        .export-btn:hover { background: #e67e22; }
 
-        /* Grafik Area */
+        /* Area Grafik */
         #chartWrapper {
             display: none;
             margin-bottom: 30px;
-            padding: 25px;
+            padding: 20px;
             background: #fff;
             border: 2px solid #6a1b9a;
             border-radius: 12px;
-            box-shadow: 0px 10px 30px rgba(0,0,0,0.1);
-            animation: fadeIn 0.5s ease-in-out;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(-10px); }
-            to { opacity: 1; transform: translateY(0); }
+            box-shadow: 0px 8px 25px rgba(0,0,0,0.1);
         }
 
         /* Tabel */
@@ -110,17 +87,17 @@
             overflow-x: auto;
             margin-top: 10px;
             border-radius: 8px;
-            border: 1px solid #eee;
+            max-height: 600px;
         }
 
         table {
             width: 100%;
             border-collapse: collapse;
-            font-size: 12.5px;
+            font-size: 12px;
         }
 
         th, td {
-            padding: 12px 8px;
+            padding: 10px 8px;
             border: 1px solid #ddd;
             text-align: left;
             white-space: nowrap;
@@ -131,25 +108,18 @@
             color: white;
             position: sticky;
             top: 0;
-            z-index: 10;
+            z-index: 5;
         }
 
-        /* Kolom Tersembunyi (Marketing Code) */
-        table td:nth-child(2), th:nth-child(2) { display: none; }
+        /* Kolom Tersembunyi (Marketing Code biasanya di index ke-2 atau sesuai CSS awal) */
+        th:nth-child(2), td:nth-child(2) { display: none; }
 
-        /* Highlight */
         .highlight-yes { color: #28a745; font-weight: bold; }
-        .highlight-no, .highlight-red { color: #dc3545; font-weight: bold; }
-        .clickable-name { 
-            color: #6a1b9a; 
-            font-weight: bold; 
-            cursor: pointer; 
-            text-decoration: underline; 
-        }
-        .clickable-name:hover { color: #8e24aa; }
+        .highlight-red { color: #dc3545; font-weight: bold; }
+        .clickable-name { color: #6a1b9a; font-weight: bold; cursor: pointer; text-decoration: underline; }
 
         @media screen and (max-width: 768px) {
-            .filter-container { flex-direction: column; align-items: stretch; }
+            .filter-container { flex-direction: column; }
         }
     </style>
 </head>
@@ -167,7 +137,11 @@
             
             <select id="positionFilter" onchange="filterAndSearchTable()">
                 <option value="">All Position</option>
-                <option value="RM">RM</option>
+                <option value="RM">RM (All)</option>
+                <option value="RM C">RM Consumer</option>
+                <option value="RM P">RM Prioritas</option>
+                <option value="RM F">RM Funding & Hajj</option>
+                <option value="RM S">RM SME</option>
                 <option value="CS">CS</option>
             </select>
 
@@ -184,17 +158,14 @@
             <button class="btn print-btn" onclick="printTable()">Print</button>
             <button class="btn export-btn" onclick="exportToExcel()">Export XLS</button>
             <button class="btn back-btn" onclick="openPage()">Back</button>
-
-            <h3 id="time-date"></h3> 
+            
+            <h3 id="time-date" style="width: 100%; font-size: 13px; color: #666; font-style: italic;"></h3>
         </div>
 
         <div id="chartWrapper">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-                <div style="text-align: left;">
-                    <h4 id="chartTitle" style="margin: 0; color: #6a1b9a; font-size: 18px;">Performance Graph</h4>
-                    <small style="color: #666;">Comparing Calls vs Visits (Monthly & Daily Avg)</small>
-                </div>
-                <button onclick="closeChart()" style="cursor:pointer; border:none; background:#ff4444; color:white; border-radius:4px; padding: 8px 15px; font-weight:bold;">✕ Close Chart</button>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                <h4 id="chartTitle" style="margin: 0; color: #6a1b9a;">Performance Detail</h4>
+                <button onclick="closeChart()" style="border:none; background:#eee; cursor:pointer; padding:5px 10px; border-radius:4px;">✕ Close</button>
             </div>
             <div style="height: 350px;">
                 <canvas id="performanceChart"></canvas>
@@ -215,23 +186,22 @@
         let tableData = [];
         let myChart = null;
 
-        // 1. Update Waktu Real-time
+        // 1. Time Update
         function updateTime() {
             const now = new Date();
-            const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit' };
-            document.getElementById('time-date').innerText = "Waktu Akses: " + now.toLocaleDateString('id-ID', options);
+            document.getElementById('time-date').innerText = "Last Updated: " + now.toLocaleString('id-ID');
         }
         setInterval(updateTime, 1000);
         updateTime();
 
-        // 2. Load Data dari Dataset.json
+        // 2. Fetch Data
         fetch('Dataset.json')
-            .then(response => response.json())
+            .then(res => res.json())
             .then(data => {
                 tableData = data;
                 populateTable(data);
             })
-            .catch(error => console.error('Error loading JSON:', error));
+            .catch(err => console.error("Error load data:", err));
 
         function populateTable(data) {
             const tableHead = document.getElementById('tableHead');
@@ -253,19 +223,16 @@
                         let td = document.createElement('td');
                         td.textContent = row[header];
 
-                        // Nama Marketing (Indeks 2) - Jadikan pemicu grafik
+                        // Clickable Name (Index 2)
                         if (index === 2) {
                             td.classList.add('clickable-name');
-                            td.title = "Klik untuk lihat detail grafik performa";
                             td.onclick = () => showChart(row);
                         }
 
-                        // Logika Pewarnaan (Highlight)
-                        if (header === "Login MTD" && row[header] == "0") td.classList.add("highlight-red");
-                        if (header === "Login DTD") {
-                            if (row[header] === "Y") td.classList.add("highlight-yes");
-                            if (row[header] === "N") td.classList.add("highlight-no");
-                        }
+                        // Coloring logic
+                        if (header.includes("Login MTD") && row[header] == "0") td.classList.add("highlight-red");
+                        if (header.includes("Login DTD") && row[header] === "Y") td.classList.add("highlight-yes");
+                        if (header.includes("Login DTD") && row[header] === "N") td.classList.add("highlight-red");
 
                         tr.appendChild(td);
                     });
@@ -279,39 +246,71 @@
             }
         }
 
-        // 3. Fungsi Grafik Multi-Metric (Call & Visit)
+        // 3. Smart Filter Logic (Fix RM Issue)
+        function filterAndSearchTable() {
+            const sBox = document.getElementById('searchBox').value.toLowerCase();
+            const fPos = document.getElementById('positionFilter').value; 
+            const fBranch = document.getElementById('branchFilter').value.toLowerCase();
+            const fPer = document.getElementById('periodeFilter').value.toLowerCase();
+            const fMTD = document.getElementById('zeroMTDFilter').value;
+
+            document.querySelectorAll('#tableBody tr').forEach(row => {
+                const cells = row.cells;
+                const cellPeriod = cells[0].textContent.toLowerCase();
+                const cellCode = cells[1].textContent.toLowerCase();
+                const cellName = cells[2].textContent.toLowerCase();
+                const cellPos = cells[3].textContent.trim();
+                const cellBranch = cells[4].textContent.toLowerCase();
+                const cellMTD = cells[5].textContent.trim();
+
+                // Logic khusus RM
+                let matchPos = true;
+                if (fPos !== "") {
+                    if (fPos === "RM") {
+                        matchPos = cellPos.startsWith("RM");
+                    } else {
+                        matchPos = (cellPos === fPos);
+                    }
+                }
+
+                const matchSearch = cellName.includes(sBox) || cellCode.includes(sBox);
+                const matchBranch = !fBranch || cellBranch === fBranch;
+                const matchPer = !fPer || cellPeriod === fPer;
+                const matchMTD = !fMTD || cellMTD === fMTD;
+
+                row.style.display = (matchSearch && matchPos && matchBranch && matchPer && matchMTD) ? "" : "none";
+            });
+        }
+
+        // 4. Multi-Metric Chart (Fix Empty Call Issue)
         function showChart(rowData) {
             const wrapper = document.getElementById('chartWrapper');
             const ctx = document.getElementById('performanceChart').getContext('2d');
-            
             wrapper.style.display = 'block';
-            document.getElementById('chartTitle').innerText = `Detail Performa: ${rowData['Marketing Name'] || rowData['Name']}`;
+            document.getElementById('chartTitle').innerText = `Performance: ${rowData['Marketing Name'] || rowData['Name']}`;
 
             if (myChart) myChart.destroy();
 
-            // Ambil data Call vs Visit dari JSON (sesuaikan nama field)
-            const mtdCall = parseFloat(rowData['MTD Call']) || 0;
-            const mtdVisit = parseFloat(rowData['MTD Visit']) || 0;
-            const avgCall = parseFloat(rowData['AVG Call']) || 0;
-            const avgVisit = parseFloat(rowData['AVG Visit']) || 0;
+            // Helper to find key even with different casing or spaces
+            const val = (keys) => {
+                for (let k of keys) {
+                    if (rowData[k] !== undefined) return parseFloat(rowData[k]) || 0;
+                }
+                return 0;
+            };
+
+            const mCall = val(['MTD Call', 'MTD_Call', 'mtd call']);
+            const mVisit = val(['MTD Visit', 'MTD_Visit', 'mtd visit']);
+            const aCall = val(['AVG Call', 'Avg Call', 'AVG_Call', 'avg call']);
+            const aVisit = val(['AVG Visit', 'Avg Visit', 'AVG_Visit', 'avg visit']);
 
             myChart = new Chart(ctx, {
                 type: 'bar',
                 data: {
-                    labels: ['Total MTD (Accumulated)', 'Daily Average'],
+                    labels: ['MTD Total', 'Daily Average'],
                     datasets: [
-                        {
-                            label: 'Calls',
-                            data: [mtdCall, avgCall],
-                            backgroundColor: '#6a1b9a', // Ungu
-                            borderRadius: 6
-                        },
-                        {
-                            label: 'Visits',
-                            data: [mtdVisit, avgVisit],
-                            backgroundColor: '#f39c12', // Oranye
-                            borderRadius: 6
-                        }
+                        { label: 'Calls', data: [mCall, aCall], backgroundColor: '#6a1b9a', borderRadius: 5 },
+                        { label: 'Visits', data: [mVisit, aVisit], backgroundColor: '#f39c12', borderRadius: 5 }
                     ]
                 },
                 options: {
@@ -319,89 +318,42 @@
                     maintainAspectRatio: false,
                     plugins: {
                         legend: { position: 'top' },
-                        datalabels: {
-                            anchor: 'end',
-                            align: 'top',
-                            color: '#444',
-                            font: { weight: 'bold' },
-                            formatter: (val) => val.toLocaleString('id-ID')
-                        }
+                        datalabels: { anchor: 'end', align: 'top', font: { weight: 'bold' } }
                     },
-                    scales: {
-                        y: { beginAtZero: true, grid: { color: '#eee' } },
-                        x: { grid: { display: false } }
-                    }
+                    scales: { y: { beginAtZero: true, grace: '15%' } }
                 },
                 plugins: [ChartDataLabels]
             });
-
-            // Gerakan scroll halus ke posisi grafik
             wrapper.scrollIntoView({ behavior: 'smooth', block: 'center' });
         }
 
-        function closeChart() {
-            document.getElementById('chartWrapper').style.display = 'none';
-        }
+        function closeChart() { document.getElementById('chartWrapper').style.display = 'none'; }
 
-        // 4. Filtering & Search
         function updateFilterOptions(filterElement, values, defaultLabel) {
-            const currentVal = filterElement.value;
+            const current = filterElement.value;
             filterElement.innerHTML = `<option value="">${defaultLabel}</option>`;
-            Array.from(values).sort().forEach(value => {
-                let option = document.createElement('option');
-                option.value = value; option.textContent = value;
-                filterElement.appendChild(option);
+            Array.from(values).sort().forEach(v => {
+                let opt = document.createElement('option');
+                opt.value = v; opt.textContent = v;
+                filterElement.appendChild(opt);
             });
-            filterElement.value = currentVal;
-        }
-
-        function filterAndSearchTable() {
-            const sBox = document.getElementById('searchBox').value.toLowerCase();
-            const fPos = document.getElementById('positionFilter').value.toLowerCase();
-            const fBranch = document.getElementById('branchFilter').value.toLowerCase();
-            const fPer = document.getElementById('periodeFilter').value.toLowerCase();
-            const fMTD = document.getElementById('zeroMTDFilter').value;
-
-            document.querySelectorAll('#tableBody tr').forEach(row => {
-                const cells = row.cells;
-                // Asumsi Nama di index 2, Kode di index 1, Posisi 3, Cabang 4, MTD 5
-                const matchName = cells[2].textContent.toLowerCase().includes(sBox) || cells[1].textContent.toLowerCase().includes(sBox);
-                const matchPos = !fPos || cells[3].textContent.toLowerCase().includes(fPos);
-                const matchBranch = !fBranch || cells[4].textContent.toLowerCase() === fBranch;
-                const matchPer = !fPer || cells[0].textContent.toLowerCase() === fPer;
-                const matchMTD = !fMTD || cells[5].textContent === fMTD;
-
-                row.style.display = (matchName && matchPos && matchBranch && matchPer && matchMTD) ? "" : "none";
-            });
+            filterElement.value = current;
         }
 
         function resetFilter() {
-            document.getElementById('searchBox').value = "";
-            document.getElementById('positionFilter').value = "";
-            document.getElementById('branchFilter').value = "";
-            document.getElementById('periodeFilter').value = "";
-            document.getElementById('zeroMTDFilter').value = "";
+            document.querySelectorAll('select, input[type="text"]').forEach(i => i.value = "");
             filterAndSearchTable();
             closeChart();
         }
 
-        // 5. Excel Export
         function exportToExcel() {
             const table = document.getElementById("dataTable");
-            const visibleRows = Array.from(table.rows).filter(row => row.style.display !== "none");
-            
-            const cleanData = visibleRows.map(row => 
-                Array.from(row.cells)
-                .filter((_, i) => i !== 1) // Abaikan Marketing Code
-                .map(cell => cell.textContent.trim())
-            );
-            
-            if (cleanData.length <= 1) return alert("Pilih data terlebih dahulu!");
-
-            const ws = XLSX.utils.aoa_to_sheet(cleanData);
+            const visibleRows = Array.from(table.rows).filter(r => r.style.display !== "none");
+            const data = visibleRows.map(row => Array.from(row.cells).filter((_, i) => i !== 1).map(c => c.textContent.trim()));
+            const ws = XLSX.utils.aoa_to_sheet(data);
             const wb = XLSX.utils.book_new();
-            XLSX.utils.book_append_sheet(wb, ws, "Performance");
-            XLSX.writeFile(wb, `Performance_Sumatera_${new Date().toISOString().split('T')[0]}.xlsx`);
+            XLSX.utils.book_append_sheet(wb, ws, "Data");
+            XLSX.writeFile(wb, "Performance_Sumatera.xlsx");
         }
 
         function printTable() { window.print(); }
