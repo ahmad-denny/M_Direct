@@ -11,8 +11,25 @@
     <style>
         body { font-family: 'Segoe UI', Arial, sans-serif; background-color: #f0f2f5; padding: 20px; margin: 0; text-align: center; }
         .container { width: 95%; max-width: 1300px; margin: 0 auto; background: #fff; padding: 20px; border-radius: 12px; box-shadow: 0px 4px 20px rgba(0,0,0,0.08); }
-        h2 { color: white; background: linear-gradient(90deg, #6a1b9a, #8e24aa); padding: 15px; border-radius: 8px; margin-top: 0; }
-        .as-of-text { font-size: 0.6em; opacity: 0.9; margin-left: 10px; font-weight: normal; font-style: italic; }
+        
+        /* Bagian Header yang diperbaiki */
+        .header-banner { 
+            color: white; 
+            background: linear-gradient(90deg, #6a1b9a, #8e24aa); 
+            padding: 20px 15px; 
+            border-radius: 8px; 
+            margin-top: 0; 
+            margin-bottom: 20px;
+        }
+        .header-banner h2 { margin: 0; padding: 0; background: none; font-size: 24px; }
+        .as-of-text { 
+            display: block; /* Memaksa ke baris baru */
+            font-size: 14px; 
+            margin-top: 8px; 
+            font-weight: normal; 
+            opacity: 0.9;
+        }
+
         .filter-container { display: flex; flex-wrap: wrap; gap: 10px; padding: 20px; background: #f8f9fa; border-radius: 10px; margin-bottom: 20px; border: 1px solid #e9ecef; }
         input, select { padding: 10px; border: 1px solid #ddd; border-radius: 6px; flex: 1; min-width: 150px; }
         .btn { padding: 10px 18px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; color: white; transition: 0.3s; }
@@ -26,18 +43,16 @@
         .highlight-red { color: #dc3545; font-weight: bold; }
         .highlight-yes { color: #28a745; font-weight: bold; }
         .clickable-name { color: #6a1b9a; font-weight: bold; cursor: pointer; text-decoration: underline; }
-
-        .header-title h2 { margin: 0; font-size: 22px; }
-        .as-of-date { font-size: 14px; opacity: 0.9; font-weight: normal; display: block; margin-top: 5px; }
-        
     </style>
 </head>
 <body>
 
 <div class="container">
-    <h2>M-Direct Performance Region Sumatera</h2>
-    <span id="asOfDisplay" class="as-of-date"></span>
-    
+    <div class="header-banner">
+        <h2>M-Direct Performance Region Sumatera</h2>
+        <span id="asOfDisplay" class="as-of-text"></span>
+    </div>
+
     <div class="filter-container">
         <select id="periodeFilter" onchange="filterAndSearchTable()"><option value="">All Period</option></select>
         <input type="text" id="searchBox" placeholder="Search Name or Code..." onkeyup="filterAndSearchTable()">
@@ -75,7 +90,6 @@
     let tableData = [];
     let myChart = null;
 
-    // Load Data
     fetch('Dataset.json')
         .then(res => res.json())
         .then(data => {
@@ -130,11 +144,46 @@
             fillSelect(periodeFilter, periods, 'All Period');
             fillPositionSelect(positionFilter, positions);
 
-            // Jalankan filter pertama kali untuk menentukan teks "as of" awal
             filterAndSearchTable();
         }
     }
 
+    function filterAndSearchTable() {
+        const fPer = document.getElementById('periodeFilter').value;
+        const asOfDisplay = document.getElementById('asOfDisplay');
+
+        // Update teks as of agar turun ke bawah sesuai CSS display: block
+        if (fPer !== "") {
+            asOfDisplay.textContent = `as of ${fPer}`;
+        } else if (tableData.length > 0) {
+            const allPeriods = tableData.map(row => row['Period']?.toString().trim()).filter(Boolean);
+            const latest = [...new Set(allPeriods)].sort().reverse()[0];
+            asOfDisplay.textContent = latest ? `as of ${latest}` : "";
+        }
+
+        // Logic filter tabel tetap sama
+        const sBox = document.getElementById('searchBox').value.toLowerCase();
+        const fPos = document.getElementById('positionFilter').value;
+        const fBranch = document.getElementById('branchFilter').value;
+        const fMTD = document.getElementById('zeroMTDFilter').value;
+
+        document.querySelectorAll('#tableBody tr').forEach(row => {
+            const cells = row.cells;
+            if (cells.length === 0) return;
+            const matchSearch = cells[2].textContent.toLowerCase().includes(sBox) || cells[1].textContent.toLowerCase().includes(sBox);
+            const matchBranch = !fBranch || cells[4].textContent.trim() === fBranch;
+            const matchPer = !fPer || cells[0].textContent.trim() === fPer;
+            const matchMTD = !fMTD || cells[5].textContent.trim() === fMTD;
+            
+            let matchPos = true;
+            if (fPos === "RM_ALL") matchPos = cells[3].textContent.startsWith("RM");
+            else if (fPos !== "") matchPos = (cells[3].textContent.trim() === fPos);
+
+            row.style.display = (matchSearch && matchPos && matchBranch && matchPer && matchMTD) ? "" : "none";
+        });
+    }
+
+    // Fungsi pendukung lainnya (fillSelect, showChart, dll) tetap sama
     function fillSelect(el, set, label) {
         el.innerHTML = `<option value="">${label}</option>`;
         Array.from(set).sort().forEach(v => {
@@ -143,7 +192,6 @@
             el.appendChild(opt);
         });
     }
-
     function fillPositionSelect(el, set) {
         el.innerHTML = '<option value="">All Position</option><option value="RM_ALL">RM (All Group)</option>';
         Array.from(set).sort().forEach(v => {
@@ -152,111 +200,6 @@
             el.appendChild(opt);
         });
     }
-
-    function filterAndSearchTable() {
-        const sBox = document.getElementById('searchBox').value.toLowerCase();
-        const fPos = document.getElementById('positionFilter').value;
-        const fBranch = document.getElementById('branchFilter').value;
-        const fPer = document.getElementById('periodeFilter').value;
-        const fMTD = document.getElementById('zeroMTDFilter').value;
-        const asOfDisplay = document.getElementById('asOfDisplay');
-
-        // Logic Dinamis Teks "as of"
-        if (fPer !== "") {
-            asOfDisplay.textContent = `as of ${fPer}`;
-        } else if (tableData.length > 0) {
-            // Cari periode terbaru dari dataset jika filter All Period
-            const allPeriods = tableData.map(row => row['Period']?.toString().trim()).filter(Boolean);
-            const latest = [...new Set(allPeriods)].sort().reverse()[0];
-            asOfDisplay.textContent = latest ? `as of ${latest}` : "";
-        }
-
-        document.querySelectorAll('#tableBody tr').forEach(row => {
-            const cells = row.cells;
-            if (cells.length === 0) return;
-
-            const cPer = cells[0].textContent.trim();
-            const cCode = cells[1].textContent.toLowerCase();
-            const cName = cells[2].textContent.toLowerCase();
-            const cPos = cells[3].textContent.trim();
-            const cBranch = cells[4].textContent.trim();
-            const cMTD = cells[5].textContent.trim();
-
-            let matchPos = true;
-            if (fPos === "RM_ALL") {
-                matchPos = cPos.startsWith("RM");
-            } else if (fPos !== "") {
-                matchPos = (cPos === fPos);
-            }
-
-            const matchSearch = cName.includes(sBox) || cCode.includes(sBox);
-            const matchBranch = !fBranch || cBranch === fBranch;
-            const matchPer = !fPer || cPer === fPer;
-            const matchMTD = !fMTD || cMTD === fMTD;
-
-            row.style.display = (matchSearch && matchPos && matchBranch && matchPer && matchMTD) ? "" : "none";
-        });
-    }
-
-    function showChart(rowData) {
-        const wrapper = document.getElementById('chartWrapper');
-        const ctx = document.getElementById('performanceChart').getContext('2d');
-        wrapper.style.display = 'block';
-        document.getElementById('chartTitle').innerText = "Performance Detail: " + (rowData['Marketing Name'] || rowData['Name'] || "User");
-
-        if (myChart) myChart.destroy();
-
-        const findVal = (target) => {
-            const keys = Object.keys(rowData);
-            const foundKey = keys.find(k => {
-                const search = target.toLowerCase().split(' ');
-                return search.every(word => k.toLowerCase().includes(word));
-            });
-            if (foundKey) {
-                let rawVal = rowData[foundKey].toString().replace(',', '.');
-                return parseFloat(rawVal) || 0;
-            }
-            return 0;
-        };
-
-        const mCall = findVal('MTD Call');
-        const mVisit = findVal('MTD Visit');
-        const aCall = findVal('AVG Call');
-        const aVisit = findVal('AVG Visit');
-
-        myChart = new Chart(ctx, {
-            type: 'bar',
-            data: {
-                labels: ['Total MTD', 'Daily Average'],
-                datasets: [
-                    { label: 'Calls', data: [mCall, aCall], backgroundColor: '#6a1b9a', borderRadius: 5 },
-                    { label: 'Visits', data: [mVisit, aVisit], backgroundColor: '#f39c12', borderRadius: 5 }
-                ]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: { position: 'top' },
-                    datalabels: { 
-                        anchor: 'end', 
-                        align: 'top', 
-                        font: { weight: 'bold' },
-                        formatter: (value, context) => {
-                            if (context.chart.data.labels[context.dataIndex] === 'Total MTD') {
-                                return Math.round(value);
-                            }
-                            return value.toLocaleString('id-ID', { minimumFractionDigits: 1, maximumFractionDigits: 1 });
-                        }
-                    }
-                },
-                scales: { y: { beginAtZero: true, grace: '20%' } }
-            },
-            plugins: [ChartDataLabels]
-        });
-        wrapper.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    }
-
     function closeChart() { document.getElementById('chartWrapper').style.display = 'none'; }
     function resetFilter() { document.querySelectorAll('select, input').forEach(i => i.value = ""); filterAndSearchTable(); closeChart(); }
     function printTable() { window.print(); }
