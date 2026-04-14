@@ -12,6 +12,7 @@
         body { font-family: 'Segoe UI', Arial, sans-serif; background-color: #f0f2f5; padding: 20px; margin: 0; text-align: center; }
         .container { width: 95%; max-width: 1300px; margin: 0 auto; background: #fff; padding: 20px; border-radius: 12px; box-shadow: 0px 4px 20px rgba(0,0,0,0.08); }
         h2 { color: white; background: linear-gradient(90deg, #6a1b9a, #8e24aa); padding: 15px; border-radius: 8px; margin-top: 0; }
+        .as-of-text { font-size: 0.6em; opacity: 0.9; margin-left: 10px; font-weight: normal; }
         .filter-container { display: flex; flex-wrap: wrap; gap: 10px; padding: 20px; background: #f8f9fa; border-radius: 10px; margin-bottom: 20px; border: 1px solid #e9ecef; }
         input, select { padding: 10px; border: 1px solid #ddd; border-radius: 6px; flex: 1; min-width: 150px; }
         .btn { padding: 10px 18px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; color: white; transition: 0.3s; }
@@ -30,7 +31,10 @@
 <body>
 
 <div class="container">
-    <h2>M-Direct Performance Region Sumatera</h2>
+    <h2>
+        M-Direct Performance Region Sumatera
+        <span id="asOfDisplay" class="as-of-text"></span>
+    </h2>
 
     <div class="filter-container">
         <select id="periodeFilter" onchange="filterAndSearchTable()"><option value="">All Period</option></select>
@@ -46,7 +50,6 @@
         </select>
         <button class="btn reset-btn" onclick="resetFilter()">Reset</button>
         <button class="btn print-btn" onclick="printTable()">Print</button>
-        <!--<button class="btn export-btn" onclick="exportToExcel()">Export XLS</button>-->
         <button class="btn back-btn" onclick="openPage()">M-Booking</button> 
     </div>
 
@@ -85,6 +88,7 @@
         const branchFilter = document.getElementById('branchFilter');
         const periodeFilter = document.getElementById('periodeFilter');
         const positionFilter = document.getElementById('positionFilter');
+        const asOfDisplay = document.getElementById('asOfDisplay');
 
         tableBody.innerHTML = '';
         let branches = new Set();
@@ -120,6 +124,12 @@
                 const posColName = headers[3]; 
                 if(row[posColName]) positions.add(row[posColName].toString().trim());
             });
+
+            // Update Teks "as of" secara dinamis berdasarkan periode terakhir
+            if (periods.size > 0) {
+                const sortedPeriods = Array.from(periods).sort().reverse();
+                asOfDisplay.textContent = `as of ${sortedPeriods[0]}`;
+            }
 
             fillSelect(branchFilter, branches, 'All Branch');
             fillSelect(periodeFilter, periods, 'All Period');
@@ -240,17 +250,6 @@
     function resetFilter() { document.querySelectorAll('select, input').forEach(i => i.value = ""); filterAndSearchTable(); closeChart(); }
     function printTable() { window.print(); }
     function openPage() { window.location.href = 'https://m-activity.vercel.app/'; }
-    function exportToExcel() {
-        const table = document.getElementById("dataTable");
-        const visibleRows = Array.from(table.rows).filter(r => r.style.display !== "none");
-        const data = visibleRows.map(row => Array.from(row.cells).filter((_, i) => i !== 1).map(c => c.textContent.trim()));
-        const ws = XLSX.utils.aoa_to_sheet(data);
-        const wb = XLSX.utils.book_new();
-        XLSX.utils.book_append_sheet(wb, ws, "Performance");
-        XLSX.writeFile(wb, "Performance_Sumatera.xlsx");
-    }
 </script>
 </body>
 </html>
-
-
