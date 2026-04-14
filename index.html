@@ -199,7 +199,10 @@
     }
 
     function closeChart() { document.getElementById('chartWrapper').style.display = 'none'; }
-    function resetFilter() { document.querySelectorAll('select, input').forEach(i => i.value = ""); filterAndSearchTable(); closeChart(); }
+    function resetFilter() { document.querySelectorAll('select, input').forEach(i => i.value = ""); 
+                            populateTable(data);
+                            filterAndSearchTable(); 
+                            closeChart(); }
     function printTable() { window.print(); }
     function openPage() { window.location.href = 'https://m-activity.vercel.app/'; }
 
