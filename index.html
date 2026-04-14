@@ -30,6 +30,9 @@
 
         .filter-container { display: flex; flex-wrap: wrap; gap: 10px; padding: 20px; background: #f8f9fa; border-radius: 10px; margin-bottom: 20px; border: 1px solid #e9ecef; }
         input, select { padding: 10px; border: 1px solid #ddd; border-radius: 6px; flex: 1; min-width: 150px; }
+        /* Highlight border untuk filter periode yang terpilih otomatis */
+        #periodeFilter { border: 2px solid #6a1b9a; font-weight: bold; }
+
         .btn { padding: 10px 18px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; color: white; transition: 0.3s; }
         .reset-btn { background: #28a745; } .back-btn { background: #dc3545; } .print-btn { background: #6f42c1; }
         
@@ -140,9 +143,19 @@
             });
 
             fillSelect(branchFilter, branches, 'All Branch');
+            
+            // Isi periode dan urutkan dari terbaru ke terlama
+            const sortedPeriods = Array.from(periods).sort().reverse();
             fillSelect(periodeFilter, periods, 'All Period');
+
+            // OTOMATIS PILIH PERIODE TERAKHIR
+            if (sortedPeriods.length > 0) {
+                periodeFilter.value = sortedPeriods[0];
+            }
+
             fillPositionSelect(positionFilter, positions);
 
+            // Jalankan filter agar tampilan langsung sinkron dengan periode terpilih
             filterAndSearchTable();
         }
     }
@@ -151,7 +164,7 @@
         const fPer = document.getElementById('periodeFilter').value;
         const asOfDisplay = document.getElementById('asOfDisplay');
 
-        // LOGIKA BARU: Jika All Period (fPer kosong), hapus teks As Of
+        // Update teks as of
         if (fPer !== "") {
             asOfDisplay.textContent = `as of ${fPer}`;
         } else {
@@ -182,6 +195,7 @@
 
     function fillSelect(el, set, label) {
         el.innerHTML = `<option value="">${label}</option>`;
+        // Gunakan sort().reverse() agar data terbaru ada di paling atas dropdown
         Array.from(set).sort().reverse().forEach(v => {
             let opt = document.createElement('option');
             opt.value = v; opt.textContent = v;
@@ -213,10 +227,7 @@
 
         const findVal = (target) => {
             const keys = Object.keys(rowData);
-            const foundKey = keys.find(k => {
-                const search = target.toLowerCase().split(' ');
-                return search.every(word => k.toLowerCase().includes(word));
-            });
+            const foundKey = keys.find(k => k.toLowerCase().includes(target.toLowerCase()));
             if (foundKey) {
                 let rawVal = rowData[foundKey].toString().replace(',', '.');
                 return parseFloat(rawVal) || 0;
