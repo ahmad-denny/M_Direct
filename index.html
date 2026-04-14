@@ -142,12 +142,12 @@
             fillSelect(branchFilter, branches, 'All Branch', false);
             
             // LOGIKA SORTIR TANGGAL YANG DIPERBAIKI
+            // Memastikan data tersortir dari yang terbaru ke terlama
             const sortedPeriods = Array.from(periods).sort((a, b) => new Date(b) - new Date(a));
-            
             fillSelect(periodeFilter, sortedPeriods, 'All Period', true);
-
+            
             if (sortedPeriods.length > 0) {
-                periodeFilter.value = sortedPeriods[0];
+                periodeFilter.value = sortedPeriods[0]; // Ini yang membuat loading awal langsung ke tanggal terbaru
             }
 
             fillPositionSelect(positionFilter, positions);
@@ -199,9 +199,28 @@
     }
 
     function closeChart() { document.getElementById('chartWrapper').style.display = 'none'; }
-    function resetFilter() { document.querySelectorAll('select, input').forEach(i => i.value = ""); 
-                            filterAndSearchTable(); 
-                            closeChart(); }
+    function resetFilter() {
+    // 1. Reset semua input teks dan select selain periode ke kosong
+    document.getElementById('searchBox').value = "";
+    document.getElementById('positionFilter').value = "";
+    document.getElementById('branchFilter').value = "";
+    document.getElementById('zeroMTDFilter').value = "";
+
+    // 2. Ambil elemen periodeFilter
+    const periodeFilter = document.getElementById('periodeFilter');
+    
+    // 3. Set periodeFilter ke opsi kedua (index 1) 
+    // Karena index 0 adalah "All Period", dan data sudah disortir DESC (terbaru di atas)
+    if (periodeFilter.options.length > 1) {
+        periodeFilter.value = periodeFilter.options[1].value;
+    } else {
+        periodeFilter.value = "";
+    }
+
+    // 4. Jalankan ulang filter dan tutup chart
+    filterAndSearchTable(); 
+    closeChart();
+    }
     function printTable() { window.print(); }
     function openPage() { window.location.href = 'https://m-activity.vercel.app/'; }
 
