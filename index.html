@@ -9,66 +9,121 @@
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
 
     <style>
+        /* Base Styles */
         body { font-family: 'Segoe UI', Arial, sans-serif; background-color: #f0f2f5; padding: 20px; margin: 0; text-align: center; }
         .container { width: 95%; max-width: 1300px; margin: 0 auto; background: #fff; padding: 20px; border-radius: 12px; box-shadow: 0px 4px 20px rgba(0,0,0,0.08); }
         
         .header-banner { 
             color: white; 
             background: linear-gradient(90deg, #6a1b9a, #8e24aa); 
-            padding: 20px 15px; 
-            border-radius: 8px; 
+            padding: 30px 15px; 
+            border-radius: 12px; 
             margin-bottom: 20px;
         }
-        .header-banner h2 { margin: 0; padding: 0; font-size: 24px; }
-        .as-of-text { display: block; font-size: 14px; margin-top: 8px; font-weight: normal; opacity: 0.9; }
+        .header-banner h2 { margin: 0; padding: 0; font-size: 24px; text-transform: uppercase; letter-spacing: 1px; }
+        .as-of-text { display: block; font-size: 16px; margin-top: 10px; font-weight: normal; opacity: 0.9; }
 
-        .filter-container { display: flex; flex-wrap: wrap; gap: 10px; padding: 20px; background: #f8f9fa; border-radius: 10px; margin-bottom: 20px; border: 1px solid #e9ecef; }
-        input, select { padding: 10px; border: 1px solid #ddd; border-radius: 6px; flex: 1; min-width: 150px; }
+        /* Filter Container */
+        .filter-container { 
+            display: flex; 
+            flex-wrap: wrap; 
+            gap: 12px; 
+            padding: 20px; 
+            background: #ffffff; 
+            border-radius: 10px; 
+            margin-bottom: 20px; 
+            border: 1px solid #e9ecef;
+            justify-content: center;
+        }
+
+        input, select { 
+            padding: 12px; 
+            border: 1px solid #ddd; 
+            border-radius: 8px; 
+            flex: 1; 
+            min-width: 200px; 
+            font-size: 14px;
+            outline: none;
+        }
+
         #periodeFilter { border: 2px solid #6a1b9a; font-weight: bold; }
 
-        .btn { padding: 10px 18px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; color: white; transition: 0.3s; }
-        .reset-btn { background: #28a745; } .back-btn { background: #dc3545; } .print-btn { background: #6f42c1; }
+        /* Button Styles */
+        .btn { 
+            padding: 12px 20px; 
+            border: none; 
+            border-radius: 8px; 
+            cursor: pointer; 
+            font-weight: bold; 
+            color: white; 
+            transition: 0.3s; 
+            font-size: 14px;
+            min-width: 120px;
+        }
         
+        .reset-btn { background-color: #5cb85c; } /* Hijau */
+        .print-btn { background-color: #7d54c4; } /* Ungu */
+        .export-btn { background-color: #f0ad4e; } /* Oranye */
+        .back-btn { background-color: #d9534f; } /* Merah */
+
+        .btn:hover { opacity: 0.85; transform: translateY(-1px); }
+
+        /* Table Styles */
         .table-container { overflow-x: auto; margin-top: 10px; border-radius: 8px; max-height: 600px; border: 1px solid #eee; }
         table { width: 100%; border-collapse: collapse; font-size: 12px; }
-        th, td { padding: 10px 8px; border: 1px solid #ddd; text-align: left; white-space: nowrap; }
+        th, td { padding: 12px 10px; border: 1px solid #ddd; text-align: left; white-space: nowrap; }
         th { background-color: #6a1b9a; color: white; position: sticky; top: 0; z-index: 5; }
-        th:nth-child(2), td:nth-child(2) { display: none; }
+        
+        /* Utility Classes */
         .highlight-red { color: #dc3545; font-weight: bold; }
         .highlight-yes { color: #28a745; font-weight: bold; }
         .clickable-name { color: #6a1b9a; font-weight: bold; cursor: pointer; text-decoration: underline; }
         #chartWrapper { display: none; margin-bottom: 30px; padding: 20px; border: 2px solid #6a1b9a; border-radius: 12px; background: #fff; }
+
+        /* MOBILE RESPONSIVE (Sesuai Gambar User) */
+        @media screen and (max-width: 600px) {
+            body { padding: 10px; }
+            .container { padding: 10px; width: 100%; box-sizing: border-box; }
+            
+            .filter-container { 
+                flex-direction: column; /* Membuat elemen bertumpuk vertikal */
+                gap: 10px;
+            }
+
+            input, select, .btn { 
+                width: 100%; /* Memenuhi lebar layar HP */
+                min-width: unset;
+                box-sizing: border-box;
+            }
+
+            .header-banner h2 { font-size: 20px; }
+        }
     </style>
 </head>
 <body>
 
 <div class="container">
     <div class="header-banner">
-        <h2>M-Direct Performance Region Sumatera</h2>
-        <span id="asOfDisplay" class="as-of-text"></span>
+        <h2>Top 10 Booking Performance Region Sumatera</h2>
+        <span id="asOfDisplay" class="as-of-text">as of ...</span>
     </div>
 
     <div class="filter-container">
-        <select id="periodeFilter" onchange="filterAndSearchTable()"><option value="">All Period</option></select>
-        <input type="text" id="searchBox" placeholder="Search Name or Code..." onkeyup="filterAndSearchTable()">
-        <select id="positionFilter" onchange="filterAndSearchTable()">
-            <option value="">All Position</option>
-            <option value="RM_ALL">RM (All Group)</option>
-        </select>
-        <select id="branchFilter" onchange="filterAndSearchTable()"><option value="">All Branch</option></select>
-        <select id="zeroMTDFilter" onchange="filterAndSearchTable()">
-            <option value="">Login MTD (All)</option>
-            <option value="0">NOT Login MTD</option>
-        </select>
+        <select id="periodeFilter" onchange="filterAndSearchTable()"><option value="">Semua Periode</option></select>
+        <input type="text" id="searchBox" placeholder="Cari Nama atau Kode..." onkeyup="filterAndSearchTable()">
+        <select id="branchFilter" onchange="filterAndSearchTable()"><option value="">Semua Branch</option></select>
+        <select id="positionFilter" onchange="filterAndSearchTable()"><option value="">Semua Posisi</option></select>
+        
         <button class="btn reset-btn" onclick="resetFilter()">Reset</button>
         <button class="btn print-btn" onclick="printTable()">Print</button>
-        <button class="btn back-btn" onclick="openPage()">M-Booking</button> 
+        <button class="btn export-btn" onclick="exportExcel()">Export XLS</button>
+        <button class="btn back-btn" onclick="openPage()">M-Direct</button> 
     </div>
 
     <div id="chartWrapper">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
-            <h4 id="chartTitle" style="margin: 0; color: #6a1b9a;">Performance Detail</h4>
-            <button onclick="closeChart()" style="border:none; background:#eee; cursor:pointer; padding:5px 10px; border-radius:4px;">✕ Close</button>
+            <h4 id="chartTitle" style="margin: 0; color: #6a1b9a;">Detail Performa</h4>
+            <button onclick="closeChart()" style="border:none; background:#eee; cursor:pointer; padding:5px 10px; border-radius:4px;">✕ Tutup</button>
         </div>
         <div style="height: 350px;"><canvas id="performanceChart"></canvas></div>
     </div>
@@ -85,6 +140,7 @@
     let tableData = [];
     let myChart = null;
 
+    // Load Data
     fetch('Dataset.json')
         .then(res => res.json())
         .then(data => {
@@ -115,41 +171,41 @@
                     let td = document.createElement('td');
                     let val = (row[header] === null || row[header] === undefined) ? "" : row[header];
                     td.textContent = val;
+                    
+                    // Nama Klikable (Kolom index 2 biasanya Nama)
                     if (index === 2) { 
                         td.classList.add('clickable-name');
                         td.onclick = () => showChart(row);
                     }
+                    
+                    // Highlight logic
                     if (header.toLowerCase().includes("mtd") && val == "0") td.classList.add("highlight-red");
                     if (header.toLowerCase().includes("dtd") && val === "Y") td.classList.add("highlight-yes");
                     if (header.toLowerCase().includes("dtd") && val === "N") td.classList.add("highlight-red");
+                    
                     tr.appendChild(td);
                 });
                 tableBody.appendChild(tr);
+                
                 if(row['Branch']) branches.add(row['Branch'].toString().trim());
                 if(row['Period']) periods.add(row['Period'].toString().trim());
-                const posColName = headers[3]; 
-                if(row[posColName]) positions.add(row[posColName].toString().trim());
+                if(row['Position']) positions.add(row['Position'].toString().trim());
             });
 
-            fillSelect(branchFilter, branches, 'All Branch', false);
+            fillSelect(branchFilter, branches, 'Semua Branch');
+            fillSelect(positionFilter, positions, 'Semua Posisi');
             
-            // LOGIKA SORTIR TANGGAL YANG DIPERBAIKI
             const sortedPeriods = Array.from(periods).sort((a, b) => new Date(b) - new Date(a));
-            
-            fillSelect(periodeFilter, sortedPeriods, 'All Period', true);
+            fillSelect(periodeFilter, sortedPeriods, 'Semua Periode', true);
 
-            if (sortedPeriods.length > 0) {
-                periodeFilter.value = sortedPeriods[0];
-            }
-
-            fillPositionSelect(positionFilter, positions);
+            if (sortedPeriods.length > 0) periodeFilter.value = sortedPeriods[0];
             filterAndSearchTable();
         }
     }
 
-    function fillSelect(el, dataArray, label, isSortedArray) {
+    function fillSelect(el, dataArray, label, isSorted = false) {
         el.innerHTML = `<option value="">${label}</option>`;
-        let finalData = isSortedArray ? dataArray : Array.from(dataArray).sort();
+        let finalData = isSorted ? dataArray : Array.from(dataArray).sort();
         finalData.forEach(v => {
             let opt = document.createElement('option');
             opt.value = v; opt.textContent = v;
@@ -159,82 +215,71 @@
 
     function filterAndSearchTable() {
         const fPer = document.getElementById('periodeFilter').value;
-        const asOfDisplay = document.getElementById('asOfDisplay');
-        asOfDisplay.textContent = fPer !== "" ? `as of ${fPer}` : "";
-
         const sBox = document.getElementById('searchBox').value.toLowerCase();
         const fPos = document.getElementById('positionFilter').value;
         const fBranch = document.getElementById('branchFilter').value;
-        const fMTD = document.getElementById('zeroMTDFilter').value;
+        
+        document.getElementById('asOfDisplay').textContent = fPer !== "" ? `as of ${fPer}` : "";
 
         document.querySelectorAll('#tableBody tr').forEach(row => {
             const cells = row.cells;
-            if (cells.length === 0) return;
+            if (cells.length < 5) return;
+
             const matchSearch = cells[2].textContent.toLowerCase().includes(sBox) || cells[1].textContent.toLowerCase().includes(sBox);
             const matchBranch = !fBranch || cells[4].textContent.trim() === fBranch;
             const matchPer = !fPer || cells[0].textContent.trim() === fPer;
-            const matchMTD = !fMTD || cells[5].textContent.trim() === fMTD;
-            let matchPos = true;
-            if (fPos === "RM_ALL") matchPos = cells[3].textContent.startsWith("RM");
-            else if (fPos !== "") matchPos = (cells[3].textContent.trim() === fPos);
-            row.style.display = (matchSearch && matchPos && matchBranch && matchPer && matchMTD) ? "" : "none";
+            const matchPos = !fPos || cells[3].textContent.trim() === fPos;
+
+            row.style.display = (matchSearch && matchPos && matchBranch && matchPer) ? "" : "none";
         });
     }
 
-    function fillPositionSelect(el, set) {
-        el.innerHTML = '<option value="">All Position</option><option value="RM_ALL">RM (All Group)</option>';
-        Array.from(set).sort().forEach(v => {
-            let opt = document.createElement('option');
-            opt.value = v; opt.textContent = v;
-            el.appendChild(opt);
-        });
+    function resetFilter() {
+        document.getElementById('searchBox').value = "";
+        document.getElementById('positionFilter').value = "";
+        document.getElementById('branchFilter').value = "";
+        filterAndSearchTable();
+        if(myChart) closeChart();
+    }
+
+    function printTable() { window.print(); }
+    function openPage() { window.location.href = 'https://m-activity.vercel.app/'; }
+
+    function exportExcel() {
+        const table = document.getElementById("dataTable");
+        const wb = XLSX.utils.table_to_book(table, { sheet: "Performance" });
+        XLSX.writeFile(wb, "Performance_Report.xlsx");
     }
 
     function closeChart() { document.getElementById('chartWrapper').style.display = 'none'; }
-    function resetFilter() { document.querySelectorAll('select, input').forEach(i => i.value = ""); filterAndSearchTable(); closeChart(); }
-    function printTable() { window.print(); }
-    function openPage() { window.location.href = 'https://m-activity.vercel.app/'; }
 
     function showChart(rowData) {
         const wrapper = document.getElementById('chartWrapper');
         const ctx = document.getElementById('performanceChart').getContext('2d');
         wrapper.style.display = 'block';
         document.getElementById('chartTitle').innerText = "Performance Detail: " + (rowData['Marketing Name'] || rowData['Name'] || "User");
+        
         if (myChart) myChart.destroy();
+        
         const findVal = (target) => {
-            const keys = Object.keys(rowData);
-            const foundKey = keys.find(k => k.toLowerCase().includes(target.toLowerCase()));
-            if (foundKey) {
-                let rawVal = rowData[foundKey].toString().replace(',', '.');
-                return parseFloat(rawVal) || 0;
-            }
-            return 0;
+            const foundKey = Object.keys(rowData).find(k => k.toLowerCase().includes(target.toLowerCase()));
+            return foundKey ? (parseFloat(rowData[foundKey].toString().replace(',', '.')) || 0) : 0;
         };
-        const mCall = findVal('MTD Call');
-        const mVisit = findVal('MTD Visit');
-        const aCall = findVal('AVG Call');
-        const aVisit = findVal('AVG Visit');
+
         myChart = new Chart(ctx, {
             type: 'bar',
             data: {
                 labels: ['Total MTD', 'Daily Average'],
                 datasets: [
-                    { label: 'Calls', data: [mCall, aCall], backgroundColor: '#6a1b9a', borderRadius: 5 },
-                    { label: 'Visits', data: [mVisit, aVisit], backgroundColor: '#f39c12', borderRadius: 5 }
+                    { label: 'Calls', data: [findVal('MTD Call'), findVal('AVG Call')], backgroundColor: '#6a1b9a', borderRadius: 5 },
+                    { label: 'Visits', data: [findVal('MTD Visit'), findVal('AVG Visit')], backgroundColor: '#f0ad4e', borderRadius: 5 }
                 ]
             },
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
                 plugins: {
-                    legend: { position: 'top' },
-                    datalabels: { 
-                        anchor: 'end', align: 'top', font: { weight: 'bold' },
-                        formatter: (value, context) => {
-                            if (context.chart.data.labels[context.dataIndex] === 'Total MTD') return Math.round(value);
-                            return value.toLocaleString('id-ID', { minimumFractionDigits: 1, maximumFractionDigits: 1 });
-                        }
-                    }
+                    datalabels: { anchor: 'end', align: 'top', font: { weight: 'bold' } }
                 },
                 scales: { y: { beginAtZero: true, grace: '20%' } }
             },
