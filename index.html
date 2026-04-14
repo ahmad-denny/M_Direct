@@ -47,7 +47,7 @@
         <button class="btn reset-btn" onclick="resetFilter()">Reset</button>
         <button class="btn print-btn" onclick="printTable()">Print</button>
         <button class="btn export-btn" onclick="exportToExcel()">Export XLS</button>
-       <!-- <button class="btn back-btn" onclick="openPage()">Back</button> -->
+        <button class="btn back-btn" onclick="openPage()">M-Activity</button> 
     </div>
 
     <div id="chartWrapper">
@@ -239,7 +239,7 @@
     function closeChart() { document.getElementById('chartWrapper').style.display = 'none'; }
     function resetFilter() { document.querySelectorAll('select, input').forEach(i => i.value = ""); filterAndSearchTable(); closeChart(); }
     function printTable() { window.print(); }
-    function openPage() { window.location.href = 'https://bmi-apps.github.io/regionsumatera/'; }
+    function openPage() { window.location.href = 'https://m-activity.vercel.app/'; }
     function exportToExcel() {
         const table = document.getElementById("dataTable");
         const visibleRows = Array.from(table.rows).filter(r => r.style.display !== "none");
