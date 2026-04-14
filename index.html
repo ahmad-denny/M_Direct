@@ -20,17 +20,10 @@
             margin-bottom: 20px;
         }
         .header-banner h2 { margin: 0; padding: 0; font-size: 24px; }
-        .as-of-text { 
-            display: block; 
-            font-size: 14px; 
-            margin-top: 8px; 
-            font-weight: normal; 
-            opacity: 0.9;
-        }
+        .as-of-text { display: block; font-size: 14px; margin-top: 8px; font-weight: normal; opacity: 0.9; }
 
         .filter-container { display: flex; flex-wrap: wrap; gap: 10px; padding: 20px; background: #f8f9fa; border-radius: 10px; margin-bottom: 20px; border: 1px solid #e9ecef; }
         input, select { padding: 10px; border: 1px solid #ddd; border-radius: 6px; flex: 1; min-width: 150px; }
-        /* Highlight border untuk filter periode yang terpilih otomatis */
         #periodeFilter { border: 2px solid #6a1b9a; font-weight: bold; }
 
         .btn { padding: 10px 18px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; color: white; transition: 0.3s; }
@@ -122,7 +115,6 @@
                     let td = document.createElement('td');
                     let val = (row[header] === null || row[header] === undefined) ? "" : row[header];
                     td.textContent = val;
-
                     if (index === 2) { 
                         td.classList.add('clickable-name');
                         td.onclick = () => showChart(row);
@@ -130,46 +122,45 @@
                     if (header.toLowerCase().includes("mtd") && val == "0") td.classList.add("highlight-red");
                     if (header.toLowerCase().includes("dtd") && val === "Y") td.classList.add("highlight-yes");
                     if (header.toLowerCase().includes("dtd") && val === "N") td.classList.add("highlight-red");
-
                     tr.appendChild(td);
                 });
                 tableBody.appendChild(tr);
-                
                 if(row['Branch']) branches.add(row['Branch'].toString().trim());
                 if(row['Period']) periods.add(row['Period'].toString().trim());
-                
                 const posColName = headers[3]; 
                 if(row[posColName]) positions.add(row[posColName].toString().trim());
             });
 
-            fillSelect(branchFilter, branches, 'All Branch');
+            fillSelect(branchFilter, branches, 'All Branch', false);
             
-            // Isi periode dan urutkan dari terbaru ke terlama
-            const sortedPeriods = Array.from(periods).sort().reverse();
-            fillSelect(periodeFilter, periods, 'All Period');
+            // LOGIKA SORTIR TANGGAL YANG DIPERBAIKI
+            const sortedPeriods = Array.from(periods).sort((a, b) => new Date(b) - new Date(a));
+            
+            fillSelect(periodeFilter, sortedPeriods, 'All Period', true);
 
-            // OTOMATIS PILIH PERIODE TERAKHIR
             if (sortedPeriods.length > 0) {
                 periodeFilter.value = sortedPeriods[0];
             }
 
             fillPositionSelect(positionFilter, positions);
-
-            // Jalankan filter agar tampilan langsung sinkron dengan periode terpilih
             filterAndSearchTable();
         }
+    }
+
+    function fillSelect(el, dataArray, label, isSortedArray) {
+        el.innerHTML = `<option value="">${label}</option>`;
+        let finalData = isSortedArray ? dataArray : Array.from(dataArray).sort();
+        finalData.forEach(v => {
+            let opt = document.createElement('option');
+            opt.value = v; opt.textContent = v;
+            el.appendChild(opt);
+        });
     }
 
     function filterAndSearchTable() {
         const fPer = document.getElementById('periodeFilter').value;
         const asOfDisplay = document.getElementById('asOfDisplay');
-
-        // Update teks as of
-        if (fPer !== "") {
-            asOfDisplay.textContent = `as of ${fPer}`;
-        } else {
-            asOfDisplay.textContent = ""; 
-        }
+        asOfDisplay.textContent = fPer !== "" ? `as of ${fPer}` : "";
 
         const sBox = document.getElementById('searchBox').value.toLowerCase();
         const fPos = document.getElementById('positionFilter').value;
@@ -179,27 +170,14 @@
         document.querySelectorAll('#tableBody tr').forEach(row => {
             const cells = row.cells;
             if (cells.length === 0) return;
-            
             const matchSearch = cells[2].textContent.toLowerCase().includes(sBox) || cells[1].textContent.toLowerCase().includes(sBox);
             const matchBranch = !fBranch || cells[4].textContent.trim() === fBranch;
             const matchPer = !fPer || cells[0].textContent.trim() === fPer;
             const matchMTD = !fMTD || cells[5].textContent.trim() === fMTD;
-            
             let matchPos = true;
             if (fPos === "RM_ALL") matchPos = cells[3].textContent.startsWith("RM");
             else if (fPos !== "") matchPos = (cells[3].textContent.trim() === fPos);
-
             row.style.display = (matchSearch && matchPos && matchBranch && matchPer && matchMTD) ? "" : "none";
-        });
-    }
-
-    function fillSelect(el, set, label) {
-        el.innerHTML = `<option value="">${label}</option>`;
-        // Gunakan sort().reverse() agar data terbaru ada di paling atas dropdown
-        Array.from(set).sort().reverse().forEach(v => {
-            let opt = document.createElement('option');
-            opt.value = v; opt.textContent = v;
-            el.appendChild(opt);
         });
     }
 
@@ -222,9 +200,7 @@
         const ctx = document.getElementById('performanceChart').getContext('2d');
         wrapper.style.display = 'block';
         document.getElementById('chartTitle').innerText = "Performance Detail: " + (rowData['Marketing Name'] || rowData['Name'] || "User");
-
         if (myChart) myChart.destroy();
-
         const findVal = (target) => {
             const keys = Object.keys(rowData);
             const foundKey = keys.find(k => k.toLowerCase().includes(target.toLowerCase()));
@@ -234,12 +210,10 @@
             }
             return 0;
         };
-
         const mCall = findVal('MTD Call');
         const mVisit = findVal('MTD Visit');
         const aCall = findVal('AVG Call');
         const aVisit = findVal('AVG Visit');
-
         myChart = new Chart(ctx, {
             type: 'bar',
             data: {
