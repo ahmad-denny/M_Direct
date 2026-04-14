@@ -200,7 +200,6 @@
 
     function closeChart() { document.getElementById('chartWrapper').style.display = 'none'; }
     function resetFilter() { document.querySelectorAll('select, input').forEach(i => i.value = ""); 
-                            populateTable(data);
                             filterAndSearchTable(); 
                             closeChart(); }
     function printTable() { window.print(); }
