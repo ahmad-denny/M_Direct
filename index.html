@@ -45,59 +45,55 @@
 
         /* --- RESPONSIVE CARD VIEW (SMARTPHONE) --- */
         @media screen and (max-width: 768px) {
-            body { padding: 10px; }
-            .container { padding: 10px; width: 100%; box-sizing: border-box; }
-            .filter-container { flex-direction: column; }
-            
-            /* Sembunyikan header asli tabel */
-            table thead { display: none; }
-
-            /* Ubah baris menjadi kartu */
-            table, tbody, tr, td { display: block; width: 100%; }
-            
-            tr {
-                margin-bottom: 20px;
-                border: 1px solid #6a1b9a55;
-                border-radius: 10px;
-                overflow: hidden;
-                box-shadow: 0 4px 10px rgba(0,0,0,0.05);
-            }
-
-            td {
-                text-align: right;
-                padding: 10px 15px;
-                border: none;
-                border-bottom: 1px solid #f0f0f0;
-                position: relative;
-                min-height: 20px;
-            }
-
-            /* Munculkan label di sebelah kiri */
-            td::before {
-                content: attr(data-label);
-                position: absolute;
-                left: 15px;
-                width: 45%;
-                text-align: left;
-                font-weight: 600;
-                color: #6a1b9a;
-            }
-
-            /* Style khusus agar persis gambar contoh */
-            td:nth-child(1), td:nth-child(2) { 
-                color: #6a1b9a; 
-                font-weight: bold;
-                text-decoration: underline;
-            }
-            
-            /* Baris Total (biasanya di baris ke-3 sesuai data Anda) */
-            td[data-label="Total"] {
-                background: #f9f4ff;
-                font-weight: 800;
-                font-size: 14px;
-            }
-
-            td:last-child { border-bottom: none; }
+        body { padding: 10px; }
+        .container { padding: 10px; width: 100%; box-sizing: border-box; }
+        
+        table thead { display: none; }
+        table, tbody, tr, td { display: block; width: 100%; box-sizing: border-box; }
+        
+        tr {
+            margin-bottom: 20px;
+            border: 1px solid #6a1b9a55;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+            background: #fff;
+        }
+    
+        td {
+            display: flex; /* Menggunakan Flexbox agar konten tidak tumpang tindih */
+            justify-content: space-between; /* Label di kiri, Value di kanan */
+            align-items: flex-start;
+            text-align: right;
+            padding: 12px 15px;
+            border: none;
+            border-bottom: 1px solid #f0f0f0;
+            min-height: 45px;
+            word-break: break-word; /* Agar teks panjang tidak keluar layar */
+        }
+    
+        /* Kita tidak lagi pakai position: absolute agar cell bisa melebar otomatis */
+        td::before {
+            content: attr(data-label);
+            flex: 1; /* Memberi ruang untuk label */
+            text-align: left;
+            font-weight: 600;
+            color: #6a1b9a;
+            padding-right: 10px;
+            white-space: nowrap; /* Label tetap satu baris */
+        }
+    
+        /* Bagian Value (Isi Data) */
+        td {
+            color: #333;
+        }
+    
+        /* Style khusus kolom tertentu seperti di gambar */
+        td:nth-child(1) , td:nth-child(2), td:nth-child(3) {
+            color: #6a1b9a;
+            font-weight: bold;
+        }
+    
+        td:last-child { border-bottom: none; }
         }
     </style>
 </head>
