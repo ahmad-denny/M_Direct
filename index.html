@@ -30,22 +30,75 @@
         .reset-btn { background: #28a745; }
         .back-btn { background: #dc3545; }
         .print-btn { background: #6f42c1; }
-        .export-btn { background: #f39c12; }
         .btn:hover { opacity: 0.8; }
         
-        .table-container { overflow-x: auto; margin-top: 10px; border-radius: 8px; max-height: 600px; border: 1px solid #eee; }
-        table { width: 100%; border-collapse: collapse; font-size: 12px; }
-        th, td { padding: 10px 8px; border: 1px solid #ddd; text-align: left; white-space: nowrap; }
-        th { background-color: #6a1b9a; color: white; position: sticky; top: 0; z-index: 5; }
-        th:nth-child(2), td:nth-child(2) { display: none; }
+        .table-container { overflow-x: auto; margin-top: 10px; border-radius: 8px; max-height: 700px; border: 1px solid #eee; }
+        table { width: 100%; border-collapse: collapse; font-size: 13px; background: white; }
+        th, td { padding: 12px 10px; border: 1px solid #ddd; text-align: left; }
+        th { background-color: #6a1b9a; color: white; position: sticky; top: 0; z-index: 5; white-space: nowrap; }
+        
+        /* Utility Classes */
         .highlight-red { color: #dc3545; font-weight: bold; }
         .highlight-yes { color: #28a745; font-weight: bold; }
         .clickable-name { color: #6a1b9a; font-weight: bold; cursor: pointer; text-decoration: underline; }
         #chartWrapper { display: none; margin-bottom: 30px; padding: 20px; border: 2px solid #6a1b9a; border-radius: 12px; background: #fff; }
-        @media screen and (max-width: 768px) { .filter-container { flex-direction: column; align-items: stretch; } select, 
-                                              .btn { width: 100%; } table { table-layout: auto; } }
 
-        
+        /* --- RESPONSIVE CARD VIEW (SMARTPHONE) --- */
+        @media screen and (max-width: 768px) {
+            body { padding: 10px; }
+            .container { padding: 10px; width: 100%; box-sizing: border-box; }
+            .filter-container { flex-direction: column; }
+            
+            /* Sembunyikan header asli tabel */
+            table thead { display: none; }
+
+            /* Ubah baris menjadi kartu */
+            table, tbody, tr, td { display: block; width: 100%; }
+            
+            tr {
+                margin-bottom: 20px;
+                border: 1px solid #6a1b9a55;
+                border-radius: 10px;
+                overflow: hidden;
+                box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+            }
+
+            td {
+                text-align: right;
+                padding: 10px 15px;
+                border: none;
+                border-bottom: 1px solid #f0f0f0;
+                position: relative;
+                min-height: 20px;
+            }
+
+            /* Munculkan label di sebelah kiri */
+            td::before {
+                content: attr(data-label);
+                position: absolute;
+                left: 15px;
+                width: 45%;
+                text-align: left;
+                font-weight: 600;
+                color: #6a1b9a;
+            }
+
+            /* Style khusus agar persis gambar contoh */
+            td:nth-child(1), td:nth-child(2) { 
+                color: #6a1b9a; 
+                font-weight: bold;
+                text-decoration: underline;
+            }
+            
+            /* Baris Total (biasanya di baris ke-3 sesuai data Anda) */
+            td[data-label="Total"] {
+                background: #f9f4ff;
+                font-weight: 800;
+                font-size: 14px;
+            }
+
+            td:last-child { border-bottom: none; }
+        }
     </style>
 </head>
 <body>
@@ -83,7 +136,9 @@
 
     <div class="table-container">
         <table id="dataTable">
-            <thead><tr id="tableHead"></tr></thead>
+            <thead id="tableHeadParent">
+                <tr id="tableHead"></tr>
+            </thead>
             <tbody id="tableBody"></tbody>
         </table>
     </div>
@@ -99,7 +154,12 @@
             tableData = data;
             populateTable(data);
         })
-        .catch(err => console.error("Error loading JSON:", err));
+        .catch(err => {
+            console.error("Error loading JSON:", err);
+            // Dummy data untuk testing jika file JSON tidak ditemukan
+            // tableData = [{"Main Branch":"MEDAN BALAIKOTA","Office":"KCP SUKARAMAI","Total":2.184,"KPR":"-","EMAS":84,"NON CONSUMER":2.100}];
+            // populateTable(tableData);
+        });
 
     function populateTable(data) {
         const tableHead = document.getElementById('tableHead');
@@ -121,18 +181,26 @@
                 let tr = document.createElement('tr');
                 headers.forEach((header, index) => {
                     let td = document.createElement('td');
-                    let val = (row[header] === null || row[header] === undefined) ? "" : row[header];
+                    let val = (row[header] === null || row[header] === undefined || row[header] === "") ? "-" : row[header];
+                    
                     td.textContent = val;
+                    // Atribut ini penting untuk tampilan Mobile Card
+                    td.setAttribute('data-label', header);
+
                     if (index === 2) { 
                         td.classList.add('clickable-name');
                         td.onclick = () => showChart(row);
                     }
-                    if (header.toLowerCase().includes("mtd") && val == "0") td.classList.add("highlight-red");
+                    
+                    // Highlights
+                    if (header.toLowerCase().includes("mtd") && (val == "0" || val == 0)) td.classList.add("highlight-red");
                     if (header.toLowerCase().includes("dtd") && val === "Y") td.classList.add("highlight-yes");
                     if (header.toLowerCase().includes("dtd") && val === "N") td.classList.add("highlight-red");
+                    
                     tr.appendChild(td);
                 });
                 tableBody.appendChild(tr);
+
                 if(row['Branch']) branches.add(row['Branch'].toString().trim());
                 if(row['Period']) periods.add(row['Period'].toString().trim());
                 const posColName = headers[3]; 
@@ -140,14 +208,11 @@
             });
 
             fillSelect(branchFilter, branches, 'All Branch', false);
-            
-            // LOGIKA SORTIR TANGGAL YANG DIPERBAIKI
-            // Memastikan data tersortir dari yang terbaru ke terlama
             const sortedPeriods = Array.from(periods).sort((a, b) => new Date(b) - new Date(a));
             fillSelect(periodeFilter, sortedPeriods, 'All Period', true);
             
             if (sortedPeriods.length > 0) {
-                periodeFilter.value = sortedPeriods[0]; // Ini yang membuat loading awal langsung ke tanggal terbaru
+                periodeFilter.value = sortedPeriods[0];
             }
 
             fillPositionSelect(positionFilter, positions);
@@ -178,13 +243,23 @@
         document.querySelectorAll('#tableBody tr').forEach(row => {
             const cells = row.cells;
             if (cells.length === 0) return;
-            const matchSearch = cells[2].textContent.toLowerCase().includes(sBox) || cells[1].textContent.toLowerCase().includes(sBox);
-            const matchBranch = !fBranch || cells[4].textContent.trim() === fBranch;
-            const matchPer = !fPer || cells[0].textContent.trim() === fPer;
-            const matchMTD = !fMTD || cells[5].textContent.trim() === fMTD;
+            
+            const txtName = cells[2] ? cells[2].textContent.toLowerCase() : "";
+            const txtCode = cells[1] ? cells[1].textContent.toLowerCase() : "";
+            const txtBranch = cells[4] ? cells[4].textContent.trim() : "";
+            const txtPer = cells[0] ? cells[0].textContent.trim() : "";
+            const txtMTD = cells[5] ? cells[5].textContent.trim() : "";
+            const txtPos = cells[3] ? cells[3].textContent.trim() : "";
+
+            const matchSearch = txtName.includes(sBox) || txtCode.includes(sBox);
+            const matchBranch = !fBranch || txtBranch === fBranch;
+            const matchPer = !fPer || txtPer === fPer;
+            const matchMTD = !fMTD || txtMTD === fMTD;
+            
             let matchPos = true;
-            if (fPos === "RM_ALL") matchPos = cells[3].textContent.startsWith("RM");
-            else if (fPos !== "") matchPos = (cells[3].textContent.trim() === fPos);
+            if (fPos === "RM_ALL") matchPos = txtPos.startsWith("RM");
+            else if (fPos !== "") matchPos = (txtPos === fPos);
+
             row.style.display = (matchSearch && matchPos && matchBranch && matchPer && matchMTD) ? "" : "none";
         });
     }
@@ -199,28 +274,22 @@
     }
 
     function closeChart() { document.getElementById('chartWrapper').style.display = 'none'; }
-    function resetFilter() {
-    // 1. Reset semua input teks dan select selain periode ke kosong
-    document.getElementById('searchBox').value = "";
-    document.getElementById('positionFilter').value = "";
-    document.getElementById('branchFilter').value = "";
-    document.getElementById('zeroMTDFilter').value = "";
-
-    // 2. Ambil elemen periodeFilter
-    const periodeFilter = document.getElementById('periodeFilter');
     
-    // 3. Set periodeFilter ke opsi kedua (index 1) 
-    // Karena index 0 adalah "All Period", dan data sudah disortir DESC (terbaru di atas)
-    if (periodeFilter.options.length > 1) {
-        periodeFilter.value = periodeFilter.options[1].value;
-    } else {
-        periodeFilter.value = "";
+    function resetFilter() {
+        document.getElementById('searchBox').value = "";
+        document.getElementById('positionFilter').value = "";
+        document.getElementById('branchFilter').value = "";
+        document.getElementById('zeroMTDFilter').value = "";
+        const periodeFilter = document.getElementById('periodeFilter');
+        if (periodeFilter.options.length > 1) {
+            periodeFilter.value = periodeFilter.options[1].value;
+        } else {
+            periodeFilter.value = "";
+        }
+        filterAndSearchTable(); 
+        closeChart();
     }
 
-    // 4. Jalankan ulang filter dan tutup chart
-    filterAndSearchTable(); 
-    closeChart();
-    }
     function printTable() { window.print(); }
     function openPage() { window.location.href = 'https://m-activity.vercel.app/'; }
 
@@ -230,6 +299,7 @@
         wrapper.style.display = 'block';
         document.getElementById('chartTitle').innerText = "Performance Detail: " + (rowData['Marketing Name'] || rowData['Name'] || "User");
         if (myChart) myChart.destroy();
+        
         const findVal = (target) => {
             const keys = Object.keys(rowData);
             const foundKey = keys.find(k => k.toLowerCase().includes(target.toLowerCase()));
@@ -239,10 +309,12 @@
             }
             return 0;
         };
+
         const mCall = findVal('MTD Call');
         const mVisit = findVal('MTD Visit');
         const aCall = findVal('AVG Call');
         const aVisit = findVal('AVG Visit');
+
         myChart = new Chart(ctx, {
             type: 'bar',
             data: {
