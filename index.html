@@ -22,87 +22,83 @@
         .header-banner h2 { margin: 0; padding: 0; font-size: 24px; }
         .as-of-text { display: block; font-size: 14px; margin-top: 8px; font-weight: normal; opacity: 0.9; }
 
+        /* Filter Style Laptop */
         .filter-container { display: flex; flex-wrap: wrap; gap: 10px; padding: 20px; background: #f8f9fa; border-radius: 10px; margin-bottom: 20px; border: 1px solid #e9ecef; }
         input, select { padding: 10px; border: 1px solid #ddd; border-radius: 6px; flex: 1; min-width: 150px; }
+        #searchBox { border: 2px solid #ddd; }
         #periodeFilter { border: 2px solid #6a1b9a; font-weight: bold; }
 
-        .btn { padding: 10px 20px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; transition: 0.3s; color: white; }
+        /* Button Style */
+        .btn { padding: 10px 15px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; transition: 0.3s; color: white; text-decoration: none; display: inline-flex; align-items: center; justify-content: center; }
         .reset-btn { background: #28a745; }
-        .back-btn { background: #dc3545; }
         .print-btn { background: #6f42c1; }
+        .back-btn { background: #dc3545; }
         .btn:hover { opacity: 0.8; }
         
-        .table-container { overflow-x: auto; margin-top: 10px; border-radius: 8px; max-height: 700px; border: 1px solid #eee; }
-        table { width: 100%; border-collapse: collapse; font-size: 13px; background: white; }
+        /* Table Style Laptop */
+        .table-container { overflow-x: auto; margin-top: 10px; border-radius: 8px; max-height: 600px; border: 1px solid #eee; }
+        table { width: 100%; border-collapse: collapse; font-size: 13px; }
         th, td { padding: 12px 10px; border: 1px solid #ddd; text-align: left; }
         th { background-color: #6a1b9a; color: white; position: sticky; top: 0; z-index: 5; white-space: nowrap; }
         
-        /* Utility Classes */
         .highlight-red { color: #dc3545; font-weight: bold; }
         .highlight-yes { color: #28a745; font-weight: bold; }
         .clickable-name { color: #6a1b9a; font-weight: bold; cursor: pointer; text-decoration: underline; }
         #chartWrapper { display: none; margin-bottom: 30px; padding: 20px; border: 2px solid #6a1b9a; border-radius: 12px; background: #fff; }
 
-        /* --- RESPONSIVE CARD VIEW (SMARTPHONE) --- */
+        /* --- RESPONSIVE MOBILE (SMARTPHONE) --- */
         @media screen and (max-width: 768px) {
             body { padding: 10px; }
-            .container { padding: 8px; width: 100%; box-sizing: border-box; }
-            
-            /* Banner Header lebih ramping */
-            .header-banner { padding: 15px 10px; margin-bottom: 15px; }
+            .container { padding: 10px; width: 100%; box-sizing: border-box; }
             .header-banner h2 { font-size: 18px; }
-        
-            /* Filter dibuat 2 kolom */
+
+            /* Filter 2 Kolom */
             .filter-container { 
                 display: grid; 
-                grid-template-columns: 1fr 1fr; /* Membagi 2 kolom sama rata */
+                grid-template-columns: 1fr 1fr; 
                 gap: 8px; 
                 padding: 12px;
             }
-        
-            /* Search Box dipaksa ambil 2 kolom (full width) agar nyaman mengetik */
-            #searchBox { 
-                grid-column: span 2; 
-                order: -1; /* Tetap di paling atas */
-            }
-        
-            /* Tombol Reset, Print, dan M-Booking dalam satu baris */
-            .btn, .reset-btn, .print-btn, .back-btn { 
-                width: 100%; 
-                padding: 10px 5px; 
-                font-size: 11px; /* Ukuran font tombol diperkecil agar muat */
-                margin: 0;
-            }
-        
-            /* Khusus pembungkus tombol agar sejajar */
-            .reset-btn { grid-column: span 2/3; }
-            .print-btn { grid-column: span 2/3; }
-            .back-btn { grid-column: span 2/3; } /* M-Booking dibuat full width bawah atau span 1 jika mau sebaris bertiga */
-        
-            /* Jika ingin Reset, Print, M-Booking SEBARIS bertiga, gunakan ini: */
-            /* .reset-btn { grid-column: span 2/3; } 
-            dst... atau cara termudah:
-            */
-            
-            /* Bungkus tombol terakhir agar rapi */
-            .btn-row {
-                display: flex;
-                gap: 5px;
+            #searchBox { grid-column: span 2; width: 100%; box-sizing: border-box; }
+
+            /* Button Sebaris Sama Besar */
+            .button-group-row {
                 grid-column: span 2;
+                display: grid;
+                grid-template-columns: 1fr 1fr 1fr;
+                gap: 5px;
+                width: 100%;
+                margin-top: 5px;
             }
-        
-            /* Style Tabel Card tetap seperti sebelumnya tapi lebih ramping */
+            .btn { width: 100%; padding: 12px 2px; font-size: 11px; white-space: nowrap; }
+
+            /* Table Card View */
             table thead { display: none; }
-            table, tbody, tr, td { display: block; width: 100%; }
-            tr { margin-bottom: 12px; border-radius: 8px; border: 1px solid #ddd; }
-            td { 
-                display: flex; 
-                justify-content: space-between; 
-                padding: 6px 10px; 
-                font-size: 12px; 
+            table, tbody, tr, td { display: block; width: 100%; box-sizing: border-box; }
+            tr { margin-bottom: 15px; border: 1px solid #ddd; border-radius: 8px; background: #fff; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+            
+            td {
+                display: flex;
+                justify-content: space-between;
+                align-items: flex-start;
+                text-align: right;
+                padding: 8px 12px;
+                border: none;
                 border-bottom: 1px solid #f5f5f5;
+                min-height: 35px;
+                word-break: break-word;
             }
-            td::before { content: attr(data-label); font-weight: 600; color: #6a1b9a; }
+            td::before {
+                content: attr(data-label);
+                flex: 0 0 45%;
+                text-align: left;
+                font-weight: 600;
+                color: #6a1b9a;
+            }
+            td:last-child { border-bottom: none; }
+
+            /* Highlight Kolom Utama */
+            td:nth-child(1), td:nth-child(2), td:nth-child(3) { color: #6a1b9a; font-weight: bold; }
         }
     </style>
 </head>
@@ -115,16 +111,20 @@
     </div>
 
     <div class="filter-container">
-        <select id="periodeFilter" onchange="filterAndSearchTable()"><option value="">All Period</option></select>
         <input type="text" id="searchBox" placeholder="Search Name or Code..." onkeyup="filterAndSearchTable()">
+        <select id="periodeFilter" onchange="filterAndSearchTable()"><option value="">All Period</option></select>
         <select id="positionFilter" onchange="filterAndSearchTable()"><option value="">All Position</option></select>
         <select id="branchFilter" onchange="filterAndSearchTable()"><option value="">All Branch</option></select>
-        <select id="zeroMTDFilter" onchange="filterAndSearchTable()"><option value="">Login MTD (All)</option></select>
         
-        <div class="btn-row" style="display: flex; gap: 5px; grid-column: span 2; width: 100%;">
+        <select id="zeroMTDFilter" onchange="filterAndSearchTable()">
+            <option value="">Login MTD (All)</option>
+            <option value="0">NOT Login MTD</option>
+        </select>
+
+        <div class="button-group-row">
             <button class="btn reset-btn" onclick="resetFilter()">Reset</button>
             <button class="btn print-btn" onclick="printTable()">Print</button>
-            <button class="btn back-btn" onclick="openPage()" style="flex: 2;">→ M-Booking</button>
+            <button class="btn back-btn" onclick="openPage()">→ M-Booking</button>
         </div>
     </div>
 
@@ -138,9 +138,7 @@
 
     <div class="table-container">
         <table id="dataTable">
-            <thead id="tableHeadParent">
-                <tr id="tableHead"></tr>
-            </thead>
+            <thead><tr id="tableHead"></tr></thead>
             <tbody id="tableBody"></tbody>
         </table>
     </div>
@@ -156,12 +154,7 @@
             tableData = data;
             populateTable(data);
         })
-        .catch(err => {
-            console.error("Error loading JSON:", err);
-            // Dummy data untuk testing jika file JSON tidak ditemukan
-            // tableData = [{"Main Branch":"MEDAN BALAIKOTA","Office":"KCP SUKARAMAI","Total":2.184,"KPR":"-","EMAS":84,"NON CONSUMER":2.100}];
-            // populateTable(tableData);
-        });
+        .catch(err => console.error("Error loading JSON:", err));
 
     function populateTable(data) {
         const tableHead = document.getElementById('tableHead');
@@ -183,26 +176,23 @@
                 let tr = document.createElement('tr');
                 headers.forEach((header, index) => {
                     let td = document.createElement('td');
-                    let val = (row[header] === null || row[header] === undefined || row[header] === "") ? "-" : row[header];
-                    
+                    let val = (row[header] === null || row[header] === undefined) ? "" : row[header];
                     td.textContent = val;
-                    // Atribut ini penting untuk tampilan Mobile Card
+                    
+                    // Penting untuk tampilan Mobile
                     td.setAttribute('data-label', header);
 
                     if (index === 2) { 
                         td.classList.add('clickable-name');
                         td.onclick = () => showChart(row);
                     }
-                    
-                    // Highlights
-                    if (header.toLowerCase().includes("mtd") && (val == "0" || val == 0)) td.classList.add("highlight-red");
+                    if (header.toLowerCase().includes("mtd") && (val === "0" || val === 0)) td.classList.add("highlight-red");
                     if (header.toLowerCase().includes("dtd") && val === "Y") td.classList.add("highlight-yes");
                     if (header.toLowerCase().includes("dtd") && val === "N") td.classList.add("highlight-red");
-                    
                     tr.appendChild(td);
                 });
                 tableBody.appendChild(tr);
-
+                
                 if(row['Branch']) branches.add(row['Branch'].toString().trim());
                 if(row['Period']) periods.add(row['Period'].toString().trim());
                 const posColName = headers[3]; 
@@ -212,10 +202,7 @@
             fillSelect(branchFilter, branches, 'All Branch', false);
             const sortedPeriods = Array.from(periods).sort((a, b) => new Date(b) - new Date(a));
             fillSelect(periodeFilter, sortedPeriods, 'All Period', true);
-            
-            if (sortedPeriods.length > 0) {
-                periodeFilter.value = sortedPeriods[0];
-            }
+            if (sortedPeriods.length > 0) periodeFilter.value = sortedPeriods[0];
 
             fillPositionSelect(positionFilter, positions);
             filterAndSearchTable();
@@ -245,22 +232,17 @@
         document.querySelectorAll('#tableBody tr').forEach(row => {
             const cells = row.cells;
             if (cells.length === 0) return;
+            const matchSearch = cells[2].textContent.toLowerCase().includes(sBox) || cells[1].textContent.toLowerCase().includes(sBox);
+            const matchBranch = !fBranch || cells[4].textContent.trim() === fBranch;
+            const matchPer = !fPer || cells[0].textContent.trim() === fPer;
             
-            const txtName = cells[2] ? cells[2].textContent.toLowerCase() : "";
-            const txtCode = cells[1] ? cells[1].textContent.toLowerCase() : "";
-            const txtBranch = cells[4] ? cells[4].textContent.trim() : "";
-            const txtPer = cells[0] ? cells[0].textContent.trim() : "";
-            const txtMTD = cells[5] ? cells[5].textContent.trim() : "";
-            const txtPos = cells[3] ? cells[3].textContent.trim() : "";
+            // Logika Filter Login MTD
+            let valMTD = cells[5].textContent.trim();
+            const matchMTD = !fMTD || valMTD === fMTD;
 
-            const matchSearch = txtName.includes(sBox) || txtCode.includes(sBox);
-            const matchBranch = !fBranch || txtBranch === fBranch;
-            const matchPer = !fPer || txtPer === fPer;
-            const matchMTD = !fMTD || txtMTD === fMTD;
-            
             let matchPos = true;
-            if (fPos === "RM_ALL") matchPos = txtPos.startsWith("RM");
-            else if (fPos !== "") matchPos = (txtPos === fPos);
+            if (fPos === "RM_ALL") matchPos = cells[3].textContent.startsWith("RM");
+            else if (fPos !== "") matchPos = (cells[3].textContent.trim() === fPos);
 
             row.style.display = (matchSearch && matchPos && matchBranch && matchPer && matchMTD) ? "" : "none";
         });
@@ -275,23 +257,18 @@
         });
     }
 
-    function closeChart() { document.getElementById('chartWrapper').style.display = 'none'; }
-    
     function resetFilter() {
         document.getElementById('searchBox').value = "";
         document.getElementById('positionFilter').value = "";
         document.getElementById('branchFilter').value = "";
         document.getElementById('zeroMTDFilter').value = "";
-        const periodeFilter = document.getElementById('periodeFilter');
-        if (periodeFilter.options.length > 1) {
-            periodeFilter.value = periodeFilter.options[1].value;
-        } else {
-            periodeFilter.value = "";
-        }
+        const pF = document.getElementById('periodeFilter');
+        if (pF.options.length > 1) pF.value = pF.options[1].value;
         filterAndSearchTable(); 
         closeChart();
     }
 
+    function closeChart() { document.getElementById('chartWrapper').style.display = 'none'; }
     function printTable() { window.print(); }
     function openPage() { window.location.href = 'https://m-activity.vercel.app/'; }
 
@@ -299,47 +276,28 @@
         const wrapper = document.getElementById('chartWrapper');
         const ctx = document.getElementById('performanceChart').getContext('2d');
         wrapper.style.display = 'block';
-        document.getElementById('chartTitle').innerText = "Performance Detail: " + (rowData['Marketing Name'] || rowData['Name'] || "User");
+        document.getElementById('chartTitle').innerText = "Detail: " + (rowData['Marketing Name'] || "User");
         if (myChart) myChart.destroy();
         
         const findVal = (target) => {
             const keys = Object.keys(rowData);
             const foundKey = keys.find(k => k.toLowerCase().includes(target.toLowerCase()));
-            if (foundKey) {
-                let rawVal = rowData[foundKey].toString().replace(',', '.');
-                return parseFloat(rawVal) || 0;
-            }
+            if (foundKey) return parseFloat(rowData[foundKey].toString().replace(',', '.')) || 0;
             return 0;
         };
-
-        const mCall = findVal('MTD Call');
-        const mVisit = findVal('MTD Visit');
-        const aCall = findVal('AVG Call');
-        const aVisit = findVal('AVG Visit');
 
         myChart = new Chart(ctx, {
             type: 'bar',
             data: {
                 labels: ['Total MTD', 'Daily Average'],
                 datasets: [
-                    { label: 'Calls', data: [mCall, aCall], backgroundColor: '#6a1b9a', borderRadius: 5 },
-                    { label: 'Visits', data: [mVisit, aVisit], backgroundColor: '#f39c12', borderRadius: 5 }
+                    { label: 'Calls', data: [findVal('MTD Call'), findVal('AVG Call')], backgroundColor: '#6a1b9a' },
+                    { label: 'Visits', data: [findVal('MTD Visit'), findVal('AVG Visit')], backgroundColor: '#f39c12' }
                 ]
             },
             options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: { position: 'top' },
-                    datalabels: { 
-                        anchor: 'end', align: 'top', font: { weight: 'bold' },
-                        formatter: (value, context) => {
-                            if (context.chart.data.labels[context.dataIndex] === 'Total MTD') return Math.round(value);
-                            return value.toLocaleString('id-ID', { minimumFractionDigits: 1, maximumFractionDigits: 1 });
-                        }
-                    }
-                },
-                scales: { y: { beginAtZero: true, grace: '20%' } }
+                responsive: true, maintainAspectRatio: false,
+                plugins: { datalabels: { anchor: 'end', align: 'top', font: { weight: 'bold' } } }
             },
             plugins: [ChartDataLabels]
         });
