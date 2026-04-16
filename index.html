@@ -44,56 +44,65 @@
         #chartWrapper { display: none; margin-bottom: 30px; padding: 20px; border: 2px solid #6a1b9a; border-radius: 12px; background: #fff; }
 
         /* --- RESPONSIVE CARD VIEW (SMARTPHONE) --- */
-       @media screen and (max-width: 768px) {
-        body { padding: 10px; }
-        .container { padding: 10px; width: 100%; box-sizing: border-box; }
+        @media screen and (max-width: 768px) {
+            body { padding: 10px; }
+            .container { padding: 8px; width: 100%; box-sizing: border-box; }
+            
+            /* Banner Header lebih ramping */
+            .header-banner { padding: 15px 10px; margin-bottom: 15px; }
+            .header-banner h2 { font-size: 18px; }
         
-        table thead { display: none; }
-        table, tbody, tr, td { display: block; width: 100%; box-sizing: border-box; }
+            /* Filter dibuat 2 kolom */
+            .filter-container { 
+                display: grid; 
+                grid-template-columns: 1fr 1fr; /* Membagi 2 kolom sama rata */
+                gap: 8px; 
+                padding: 12px;
+            }
         
-        tr {
-            margin-bottom: 15px; /* Jarak antar kartu */
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            overflow: hidden;
-            background: #fff;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-        }
-    
-        td {
-            display: flex;
-            justify-content: space-between;
-            align-items: center; /* Menjaga teks tetap di tengah secara vertikal */
-            text-align: right;
-            padding: 6px 12px; /* Padding dikecilkan (Atas-Bawah 6px, Kiri-Kanan 12px) */
-            border: none;
-            border-bottom: 1px solid #f5f5f5;
-            min-height: 32px; /* Tinggi minimum dikecilkan agar lebih rapat */
-            word-break: break-word;
-            font-size: 12px; /* Ukuran font sedikit dikecilkan agar pas */
-        }
-    
-        td::before {
-            content: attr(data-label);
-            flex: 1;
-            text-align: left;
-            font-weight: 600;
-            color: #6a1b9a;
-            padding-right: 10px;
-            white-space: nowrap;
-        }
-    
-        /* Menghapus border bawah pada baris terakhir di dalam kartu */
-        td:last-child { border-bottom: none; }
-    
-        /* Style khusus untuk nilai agar terlihat bersih */
-        td { color: #444; }
-    
-        /* Warna ungu untuk 3 baris pertama seperti di gambar */
-        td:nth-child(1) , td:nth-child(2), td:nth-child(3) {
-            color: #6a1b9a;
-            font-weight: bold;
-        }
+            /* Search Box dipaksa ambil 2 kolom (full width) agar nyaman mengetik */
+            #searchBox { 
+                grid-column: span 2; 
+                order: -1; /* Tetap di paling atas */
+            }
+        
+            /* Tombol Reset, Print, dan M-Booking dalam satu baris */
+            .btn, .reset-btn, .print-btn, .back-btn { 
+                width: 100%; 
+                padding: 10px 5px; 
+                font-size: 11px; /* Ukuran font tombol diperkecil agar muat */
+                margin: 0;
+            }
+        
+            /* Khusus pembungkus tombol agar sejajar */
+            .reset-btn { grid-column: span 1; }
+            .print-btn { grid-column: span 1; }
+            .back-btn { grid-column: span 2; } /* M-Booking dibuat full width bawah atau span 1 jika mau sebaris bertiga */
+        
+            /* Jika ingin Reset, Print, M-Booking SEBARIS bertiga, gunakan ini: */
+            /* .reset-btn { grid-column: span 2/3; } 
+            dst... atau cara termudah:
+            */
+            
+            /* Bungkus tombol terakhir agar rapi */
+            .btn-row {
+                display: flex;
+                gap: 5px;
+                grid-column: span 2;
+            }
+        
+            /* Style Tabel Card tetap seperti sebelumnya tapi lebih ramping */
+            table thead { display: none; }
+            table, tbody, tr, td { display: block; width: 100%; }
+            tr { margin-bottom: 12px; border-radius: 8px; border: 1px solid #ddd; }
+            td { 
+                display: flex; 
+                justify-content: space-between; 
+                padding: 6px 10px; 
+                font-size: 12px; 
+                border-bottom: 1px solid #f5f5f5;
+            }
+            td::before { content: attr(data-label); font-weight: 600; color: #6a1b9a; }
         }
     </style>
 </head>
@@ -108,18 +117,15 @@
     <div class="filter-container">
         <select id="periodeFilter" onchange="filterAndSearchTable()"><option value="">All Period</option></select>
         <input type="text" id="searchBox" placeholder="Search Name or Code..." onkeyup="filterAndSearchTable()">
-        <select id="positionFilter" onchange="filterAndSearchTable()">
-            <option value="">All Position</option>
-            <option value="RM_ALL">RM (All Group)</option>
-        </select>
+        <select id="positionFilter" onchange="filterAndSearchTable()"><option value="">All Position</option></select>
         <select id="branchFilter" onchange="filterAndSearchTable()"><option value="">All Branch</option></select>
-        <select id="zeroMTDFilter" onchange="filterAndSearchTable()">
-            <option value="">Login MTD (All)</option>
-            <option value="0">NOT Login MTD</option>
-        </select>
-        <button class="btn reset-btn" onclick="resetFilter()">Reset</button>
-        <button class="btn print-btn" onclick="printTable()">Print</button>
-        <button class="btn back-btn" onclick="openPage()">&#8594 M-Booking</button> 
+        <select id="zeroMTDFilter" onchange="filterAndSearchTable()"><option value="">Login MTD (All)</option></select>
+        
+        <div class="btn-row" style="display: flex; gap: 5px; grid-column: span 2; width: 100%;">
+            <button class="btn reset-btn" onclick="resetFilter()">Reset</button>
+            <button class="btn print-btn" onclick="printTable()">Print</button>
+            <button class="btn back-btn" onclick="openPage()" style="flex: 2;">→ M-Booking</button>
+        </div>
     </div>
 
     <div id="chartWrapper">
