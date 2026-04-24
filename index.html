@@ -291,13 +291,13 @@
             data: {
                 labels: ['Total MTD', 'Daily Average'],
                 datasets: [
-                    { label: 'Calls', data: [findVal('MTD Call'), findVal('AVG Call')], backgroundColor: '#6a1b9a' },
-                    { label: 'Visits', data: [findVal('MTD Visit'), findVal('AVG Visit')], backgroundColor: '#f39c12' }
+                    { label: 'Calls', data: [findVal('MTD Call'), findVal('AVG Call')], backgroundColor: '#FFFF99' },
+                    { label: 'Visits', data: [findVal('MTD Visit'), findVal('AVG Visit')], backgroundColor: '#CCFFCC' }
                 ]
             },
             options: {
                 responsive: true, maintainAspectRatio: false,
-                plugins: { datalabels: { anchor: 'end', align: 'bottom', font: { weight: 'bold' } } }
+                plugins: { datalabels: { anchor: 'end', align: 'top', font: { weight: 'bold' } } }
             },
             plugins: [ChartDataLabels]
         });
