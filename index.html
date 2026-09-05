@@ -50,113 +50,6 @@
             user-select: none;
         }
 
-        /* =========================================
-           LOGIN WINDOW STYLES
-           ========================================= */
-        #login-overlay {
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: #1e293b; /* Dark slate background matching screenshot */
-            z-index: 9999;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: opacity 0.4s ease, visibility 0.4s;
-        }
-
-        #login-overlay.hidden {
-            opacity: 0;
-            visibility: hidden;
-            pointer-events: none;
-        }
-
-        .login-card {
-            background: #ffffff;
-            width: 100%;
-            max-width: 400px;
-            padding: 40px 32px;
-            border-radius: 16px;
-            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-            text-align: center;
-            transform: translateY(0);
-            transition: transform 0.3s ease;
-        }
-
-        .login-icon-wrapper {
-            width: 56px; height: 56px;
-            background: #ede9fe; /* Light purple bg */
-            border-radius: 50%;
-            display: flex; align-items: center; justify-content: center;
-            margin: 0 auto 20px auto;
-        }
-
-        .login-icon-wrapper svg {
-            width: 28px; height: 28px; fill: #7c3aed;
-        }
-
-        .login-title {
-            font-size: 22px; font-weight: 700; color: #1f2937; margin-bottom: 8px;
-        }
-
-        .login-subtitle {
-            font-size: 14px; color: #6b7280; margin-bottom: 24px;
-        }
-
-        .input-group {
-            position: relative;
-            margin-bottom: 20px;
-        }
-
-        .input-group input {
-            width: 100%;
-            padding: 14px 44px 14px 16px;
-            border: 1px solid #d1d5db;
-            border-radius: 8px;
-            font-size: 15px;
-            outline: none;
-            transition: all 0.2s;
-            color: #1f2937;
-        }
-
-        .input-group input:focus {
-            border-color: #7c3aed;
-            box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.1);
-        }
-
-        .toggle-password {
-            position: absolute;
-            right: 12px; top: 50%; transform: translateY(-50%);
-            background: none; border: none; cursor: pointer;
-            color: #9ca3af; padding: 4px;
-            display: flex; align-items: center; justify-content: center;
-        }
-
-        .toggle-password:hover { color: #6b7280; }
-        .toggle-password svg { width: 20px; height: 20px; fill: currentColor; }
-
-        .btn-login {
-            width: 100%;
-            padding: 14px;
-            background: #6366f1; /* Indigo/Purple */
-            color: white;
-            border: none;
-            border-radius: 8px;
-            font-size: 15px;
-            font-weight: 600;
-            cursor: pointer;
-            display: flex; align-items: center; justify-content: center; gap: 8px;
-            transition: background 0.2s;
-        }
-
-        .btn-login:hover { background: #4f46e5; }
-        .btn-login:active { transform: scale(0.98); }
-        .btn-login svg { width: 18px; height: 18px; fill: currentColor; }
-
-        .login-error {
-            color: #ef4444; font-size: 13px; margin-top: 12px;
-            min-height: 20px; font-weight: 500; opacity: 0; transition: opacity 0.2s;
-        }
-        .login-error.show { opacity: 1; }
 
         /* =========================================
            DASHBOARD STYLES
@@ -442,32 +335,73 @@
 </head>
 <body class="light h-screen h-[100dvh] flex overflow-hidden relative" oncontextmenu="return false;" onkeydown="return blockShortcuts(event);" ondragstart="return false;">
 
-<!-- LOGIN OVERLAY START -->
-<div id="login-overlay">
-    <div class="login-card">
-        <div class="login-icon-wrapper">
-            <svg viewBox="0 0 24 24"><path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/></svg>
-        </div>
-        <h2 class="login-title">Dashboard Login</h2>
-        <p class="login-subtitle">Please enter your password</p>
-        
-        <form id="login-form" onsubmit="handleLogin(event)">
-            <div class="input-group">
-                <input type="password" id="password-input" placeholder="Enter password..." autocomplete="off" required autofocus>
-                <button type="button" class="toggle-password" onclick="togglePasswordVisibility()">
-                    <svg id="eye-icon" viewBox="0 0 24 24"><path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/></svg>
-                    <svg id="eye-off-icon" style="display:none;" viewBox="0 0 24 24"><path d="M12 7c2.76 0 5 2.24 5 5 0 .65-.13 1.26-.36 1.83l2.92 2.92c1.51-1.26 2.7-2.89 3.43-4.75-1.73-4.39-6-7.5-11-7.5-1.4 0-2.74.25-3.98.7l2.16 2.16C10.74 7.13 11.35 7 12 7zM2 4.27l2.28 2.28.46.46C3.08 8.3 1.78 10.02 1 12c1.73 4.39 6 7.5 11 7.5 1.55 0 3.03-.3 4.38-.84l.42.42L19.73 22 21 20.73 3.27 3 2 4.27zM7.53 9.8l1.55 1.55c-.05.21-.08.43-.08.65 0 1.66 1.34 3 3 3 .22 0 .44-.03.65-.08l1.55 1.55c-.67.33-1.41.53-2.2.53-2.76 0-5-2.24-5-5 0-.79.2-1.53.53-2.2zm4.31-.78l3.15 3.15.02-.16c0-1.66-1.34-3-3-3l-.17.01z"/></svg>
-                </button>
-            </div>
-            <button type="submit" class="btn-login">
-                <svg viewBox="0 0 24 24"><path d="M10 17l5-5-5-5v3H3v4h7v3z"/></svg>
-                Login
-            </button>
-            <div id="login-error-msg" class="login-error">Wrong Password, try again!</div>
-        </form>
-    </div>
-</div>
-<!-- LOGIN OVERLAY END -->
+<!-- ============================================ -->
+<!-- AUTH GATE: cek login yang dikirim dari index2.html -->
+<!-- (menggantikan login password lama) -->
+<!-- ============================================ -->
+<script>
+(function () {
+    // GANTI sesuai kebutuhan:
+    var LOGIN_PAGE_URL = 'https://bmisumatera.vercel.app/index2.html';
+    var SESSION_KEY = 'mdirect_auth_nik';
+    // Pastikan user_list.json juga ada di deployment file ini
+    // (copy file yang sama dari project index2.html), karena fetch
+    // lintas-domain akan diblokir CORS kalau filenya cuma ada di sana.
+    var USER_LIST_URL = 'user_list.json';
+
+    function goToLogin() {
+        window.location.replace(LOGIN_PAGE_URL);
+    }
+
+    function validateSession() {
+        var params = new URLSearchParams(window.location.search);
+        var nikFromUrl = params.get('auth_nik');
+        var nik = nikFromUrl || localStorage.getItem(SESSION_KEY);
+
+        if (!nik) {
+            goToLogin();
+            return;
+        }
+
+        fetch(USER_LIST_URL, { cache: 'no-store' })
+            .then(function (res) {
+                if (!res.ok) throw new Error('Gagal memuat user_list.json');
+                return res.json();
+            })
+            .then(function (data) {
+                var userList = Array.isArray(data.user_list) ? data.user_list : [];
+                var user = userList.find(function (u) {
+                    return String(u.nik).trim() === String(nik).trim();
+                });
+
+                if (!user) {
+                    localStorage.removeItem(SESSION_KEY);
+                    goToLogin();
+                    return;
+                }
+
+                localStorage.setItem(SESSION_KEY, String(user.nik));
+
+                if (nikFromUrl) {
+                    params.delete('auth_nik');
+                    params.delete('auth_ts');
+                    var qs = params.toString();
+                    var newUrl = window.location.pathname + (qs ? '?' + qs : '');
+                    window.history.replaceState({}, document.title, newUrl);
+                }
+
+                document.dispatchEvent(new CustomEvent('authReady', { detail: user }));
+            })
+            .catch(function (err) {
+                console.error('Auth check failed:', err);
+                goToLogin();
+            });
+    }
+
+    validateSession();
+})();
+</script>
+<!-- ============================================ -->
 
 <div class="container" id="main-dashboard" style="display: none;">
     <!-- Header Section -->
@@ -479,6 +413,13 @@
             <div class="header-title">
                 <h2>M|Direct Performance</h2>
                 <span id="asOfDisplay" class="as-of-text">LOADING DATA...</span>
+            </div>
+            <div id="userInfoChip" style="display:flex; align-items:center; gap:8px; margin-left:12px; padding-left:12px; border-left:1px solid rgba(0,0,0,0.1);">
+                <div id="userAvatarCircle" style="width:30px; height:30px; border-radius:50%; background:#e0e7ff; color:#4f46e5; display:flex; align-items:center; justify-content:center; font-size:0.75rem; font-weight:700; flex-shrink:0;">U</div>
+                <div style="line-height:1.15; text-align:left;">
+                    <div id="userNameChip" style="font-size:0.8rem; font-weight:600; white-space:nowrap;">-</div>
+                    <div id="userPosChip" style="font-size:0.7rem; opacity:0.7; white-space:nowrap;">-</div>
+                </div>
             </div>
             <div class="mobile-controls">
                 <button class="icon-btn" onclick="toggleFilter()" title="Show/Hide Filter">
@@ -572,53 +513,25 @@
 
 <script>
     // =========================================
-    // LOGIN LOGIC
+    // AUTH READY: dipicu setelah auth gate memvalidasi sesi
     // =========================================
-    const CORRECT_PASSWORD = "rbpm";
-    
-    function handleLogin(e) {
-        e.preventDefault();
-        const input = document.getElementById('password-input');
-        const errorMsg = document.getElementById('login-error-msg');
-        
-        if (input.value.toLowerCase().trim() === CORRECT_PASSWORD) {
-            // Success: Hide overlay, show dashboard
-            document.getElementById('login-overlay').classList.add('hidden');
-            document.getElementById('main-dashboard').style.display = 'flex';
-            
-            // Focus back to dashboard context
-            setTimeout(() => {
-                loadDataset();
-            }, 100);
-        } else {
-            // Error: Shake animation or message
-            errorMsg.classList.add('show');
-            input.value = '';
-            input.focus();
-            
-            // Auto hide error after 3 seconds
-            setTimeout(() => {
-                errorMsg.classList.remove('show');
-            }, 3000);
-        }
-    }
+    document.addEventListener('authReady', function (e) {
+        var user = e.detail;
+        if (user) {
+            var nameEl = document.getElementById('userNameChip');
+            var posEl = document.getElementById('userPosChip');
+            var avatarEl = document.getElementById('userAvatarCircle');
+            var displayName = user.nama || 'User';
+            var displayPos = user.posisi || '-';
 
-    function togglePasswordVisibility() {
-        const input = document.getElementById('password-input');
-        const eyeIcon = document.getElementById('eye-icon');
-        const eyeOffIcon = document.getElementById('eye-off-icon');
-        
-        if (input.type === 'password') {
-            input.type = 'text';
-            eyeIcon.style.display = 'none';
-            eyeOffIcon.style.display = 'block';
-        } else {
-            input.type = 'password';
-            eyeIcon.style.display = 'block';
-            eyeOffIcon.style.display = 'none';
+            if (nameEl) nameEl.textContent = displayName;
+            if (posEl) posEl.textContent = displayPos;
+            if (avatarEl) avatarEl.textContent = displayName.charAt(0).toUpperCase();
         }
-        input.focus();
-    }
+
+        document.getElementById('main-dashboard').style.display = 'flex';
+        loadDataset();
+    });
 
     // Block shortcuts globally including login
     function blockShortcuts(e) {
@@ -725,7 +638,7 @@
         }
     };
 
-    // Note: loadDataset() is now called inside handleLogin() upon success
+    // Note: loadDataset() is now called from the authReady listener above
 
     function animateCounter(el, targetVal, suffix) {
         const end = parseFloat(targetVal);
