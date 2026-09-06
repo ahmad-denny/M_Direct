@@ -725,7 +725,7 @@
 <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
 <div class="sidebar" id="sidebar">
     <div class="sidebar-header">
-        <h3>Menu</h3>
+        <h3>M-Direct</h3>
         <button class="sidebar-close" onclick="toggleSidebar()">
             <svg viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
         </button>
@@ -733,7 +733,7 @@
     
     <!-- User Info Section -->
     <div class="sidebar-section">
-        <div class="sidebar-section-title">User Information</div>
+        <div class="sidebar-section-title">Logged in as</div>
         <div class="user-info-card">
             <div class="user-avatar-large" id="sidebarUserAvatar">U</div>
             <div class="user-details">
@@ -748,33 +748,28 @@
         <div class="sidebar-section-title">Filters</div>
         
         <div class="sidebar-filter-item">
-            <label>Search</label>
             <input type="text" id="sidebarSearchBox" placeholder="Search by NIK or Name" onkeyup="syncSidebarToMain('search')">
         </div>
         
         <div class="sidebar-filter-item">
-            <label>Period</label>
             <select id="sidebarPeriodeFilter" onchange="syncSidebarToMain('periode')">
                 <option value="">All Period</option>
             </select>
         </div>
         
         <div class="sidebar-filter-item">
-            <label>Position</label>
             <select id="sidebarPositionFilter" onchange="syncSidebarToMain('position')">
                 <option value="">All Position</option>
             </select>
         </div>
         
         <div class="sidebar-filter-item">
-            <label>Branch</label>
             <select id="sidebarBranchFilter" onchange="syncSidebarToMain('branch')">
                 <option value="">All Branch</option>
             </select>
         </div>
         
         <div class="sidebar-filter-item">
-            <label>Login Status</label>
             <select id="sidebarZeroMTDFilter" onchange="syncSidebarToMain('zeroMTD')">
                 <option value="">Login Status (All)</option>
                 <option value="0">NOT Login MTD</option>
@@ -784,7 +779,9 @@
     
     <!-- Actions -->
     <div class="sidebar-actions">
+        <!--
         <button class="btn" onclick="applySidebarFilters()">Apply Filters</button>
+        -->
         <button class="btn" onclick="resetSidebarFilters()" style="background: var(--text-muted);">Reset</button>
     </div>
 </div>
