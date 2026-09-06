@@ -269,24 +269,27 @@
             opacity: 1;
         }
 
+        /* Ubah posisi sidebar dari kanan ke kiri */
         .sidebar {
             position: fixed;
             top: 0;
-            right: -100%;
+            left: -100%;  /* GANTI dari right: -100% menjadi left: -100% */
+            right: auto;   /* Tambahkan ini untuk reset right */
             width: 85%;
             max-width: 320px;
             height: 100%;
             background: var(--surface);
             z-index: 1000;
-            transition: right 0.3s ease;
+            transition: left 0.3s ease;  /* GANTI dari right menjadi left */
             overflow-y: auto;
-            box-shadow: -2px 0 10px rgba(0, 0, 0, 0.1);
+            box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);  /* Ubah shadow ke kanan */
         }
-
+        
         .sidebar.active {
-            right: 0;
+            left: 0;  /* GANTI dari right: 0 menjadi left: 0 */
+            right: auto;
         }
-
+        
         .sidebar-header {
             padding: 16px;
             border-bottom: 1px solid var(--border);
