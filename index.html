@@ -249,6 +249,181 @@
         }
 
         /* =========================================
+           SIDEBAR STYLES (MOBILE ONLY)
+           ========================================= */
+        .sidebar-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 999;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        
+        .sidebar-overlay.active {
+            display: block;
+            opacity: 1;
+        }
+
+        .sidebar {
+            position: fixed;
+            top: 0;
+            right: -100%;
+            width: 85%;
+            max-width: 320px;
+            height: 100%;
+            background: var(--surface);
+            z-index: 1000;
+            transition: right 0.3s ease;
+            overflow-y: auto;
+            box-shadow: -2px 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .sidebar.active {
+            right: 0;
+        }
+
+        .sidebar-header {
+            padding: 16px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            background: var(--surface);
+            z-index: 10;
+        }
+
+        .sidebar-header h3 {
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--text-main);
+        }
+
+        .sidebar-close {
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            width: 32px;
+            height: 32px;
+            border-radius: 6px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+
+        .sidebar-close:hover {
+            background: var(--bg);
+            color: var(--primary-blue);
+        }
+
+        .sidebar-close svg {
+            width: 20px;
+            height: 20px;
+            fill: currentColor;
+        }
+
+        .sidebar-section {
+            padding: 16px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .sidebar-section:last-child {
+            border-bottom: none;
+        }
+
+        .sidebar-section-title {
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            margin-bottom: 12px;
+            letter-spacing: 0.5px;
+        }
+
+        .user-info-card {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px;
+            background: var(--bg);
+            border-radius: 10px;
+            border: 1px solid var(--border);
+        }
+
+        .user-avatar-large {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: var(--primary-blue);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            font-weight: 700;
+            flex-shrink: 0;
+        }
+
+        .user-details {
+            flex: 1;
+        }
+
+        .user-name {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-main);
+            margin-bottom: 2px;
+        }
+
+        .user-position {
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+
+        .sidebar-filter-item {
+            margin-bottom: 12px;
+        }
+
+        .sidebar-filter-item label {
+            display: block;
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-main);
+            margin-bottom: 6px;
+        }
+
+        .sidebar-filter-item input,
+        .sidebar-filter-item select {
+            width: 100%;
+            padding: 10px 12px;
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: var(--text-main);
+            font-family: var(--font-main);
+            font-size: 13px;
+            outline: none;
+        }
+
+        .sidebar-actions {
+            padding: 16px;
+            display: flex;
+            gap: 8px;
+        }
+
+        .sidebar-actions .btn {
+            flex: 1;
+        }
+
+        /* =========================================
            MOBILE OPTIMIZATION (FIXED FOOTER)
            ========================================= */
         @media screen and (max-width: 768px) {
@@ -329,6 +504,18 @@
                 padding: 10px 0;
                 margin: 0;
                 box-shadow: 0 -2px 10px rgba(0,0,0,0.05); /* Sedikit bayangan agar terpisah visual */
+            }
+
+            /* Show sidebar toggle button on mobile */
+            .sidebar-toggle-btn {
+                display: flex !important;
+            }
+        }
+
+        /* Hide sidebar toggle on desktop */
+        @media screen and (min-width: 769px) {
+            .sidebar-toggle-btn {
+                display: none !important;
             }
         }
     </style>
@@ -422,6 +609,9 @@
                 </div>
             </div>
             <div class="mobile-controls">
+                <button class="icon-btn sidebar-toggle-btn" onclick="toggleSidebar()" title="Menu" style="display:none;">
+                    <svg viewBox="0 0 24 24"><path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"/></svg>
+                </button>
                 <button class="icon-btn" onclick="toggleFilter()" title="Show/Hide Filter">
                     <svg viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
                 </button>
@@ -511,6 +701,74 @@
     <div class="footer">Typing, Create, Update, Repeat | RBPM - Region Sumatera</div>
 </div>
 
+<!-- SIDEBAR FOR MOBILE -->
+<div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+<div class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+        <h3>Menu</h3>
+        <button class="sidebar-close" onclick="toggleSidebar()">
+            <svg viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+    </div>
+    
+    <!-- User Info Section -->
+    <div class="sidebar-section">
+        <div class="sidebar-section-title">User Information</div>
+        <div class="user-info-card">
+            <div class="user-avatar-large" id="sidebarUserAvatar">U</div>
+            <div class="user-details">
+                <div class="user-name" id="sidebarUserName">-</div>
+                <div class="user-position" id="sidebarUserPosition">-</div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Filter Section -->
+    <div class="sidebar-section">
+        <div class="sidebar-section-title">Filters</div>
+        
+        <div class="sidebar-filter-item">
+            <label>Search</label>
+            <input type="text" id="sidebarSearchBox" placeholder="Search by NIK or Name" onkeyup="syncSidebarToMain('search')">
+        </div>
+        
+        <div class="sidebar-filter-item">
+            <label>Period</label>
+            <select id="sidebarPeriodeFilter" onchange="syncSidebarToMain('periode')">
+                <option value="">All Period</option>
+            </select>
+        </div>
+        
+        <div class="sidebar-filter-item">
+            <label>Position</label>
+            <select id="sidebarPositionFilter" onchange="syncSidebarToMain('position')">
+                <option value="">All Position</option>
+            </select>
+        </div>
+        
+        <div class="sidebar-filter-item">
+            <label>Branch</label>
+            <select id="sidebarBranchFilter" onchange="syncSidebarToMain('branch')">
+                <option value="">All Branch</option>
+            </select>
+        </div>
+        
+        <div class="sidebar-filter-item">
+            <label>Login Status</label>
+            <select id="sidebarZeroMTDFilter" onchange="syncSidebarToMain('zeroMTD')">
+                <option value="">Login Status (All)</option>
+                <option value="0">NOT Login MTD</option>
+            </select>
+        </div>
+    </div>
+    
+    <!-- Actions -->
+    <div class="sidebar-actions">
+        <button class="btn" onclick="applySidebarFilters()">Apply Filters</button>
+        <button class="btn" onclick="resetSidebarFilters()" style="background: var(--text-muted);">Reset</button>
+    </div>
+</div>
+
 <script>
     // =========================================
     // AUTH READY: dipicu setelah auth gate memvalidasi sesi
@@ -527,6 +785,15 @@
             if (nameEl) nameEl.textContent = displayName;
             if (posEl) posEl.textContent = displayPos;
             if (avatarEl) avatarEl.textContent = displayName.charAt(0).toUpperCase();
+            
+            // Update sidebar user info
+            var sidebarNameEl = document.getElementById('sidebarUserName');
+            var sidebarPosEl = document.getElementById('sidebarUserPosition');
+            var sidebarAvatarEl = document.getElementById('sidebarUserAvatar');
+            
+            if (sidebarNameEl) sidebarNameEl.textContent = displayName;
+            if (sidebarPosEl) sidebarPosEl.textContent = displayPos;
+            if (sidebarAvatarEl) sidebarAvatarEl.textContent = displayName.charAt(0).toUpperCase();
         }
 
         document.getElementById('main-dashboard').style.display = 'flex';
@@ -540,6 +807,72 @@
             return false;
         }
         return true;
+    }
+
+    // =========================================
+    // SIDEBAR FUNCTIONS
+    // =========================================
+    function toggleSidebar() {
+        const sidebar = document.getElementById('sidebar');
+        const overlay = document.getElementById('sidebarOverlay');
+        
+        sidebar.classList.toggle('active');
+        overlay.classList.toggle('active');
+        
+        // Sync main filters to sidebar when opening
+        if (sidebar.classList.contains('active')) {
+            syncMainToSidebar();
+        }
+    }
+
+    function syncMainToSidebar() {
+        document.getElementById('sidebarSearchBox').value = document.getElementById('searchBox').value;
+        document.getElementById('sidebarPeriodeFilter').value = document.getElementById('periodeFilter').value;
+        document.getElementById('sidebarPositionFilter').value = document.getElementById('positionFilter').value;
+        document.getElementById('sidebarBranchFilter').value = document.getElementById('branchFilter').value;
+        document.getElementById('sidebarZeroMTDFilter').value = document.getElementById('zeroMTDFilter').value;
+    }
+
+    function syncSidebarToMain(field) {
+        switch(field) {
+            case 'search':
+                document.getElementById('searchBox').value = document.getElementById('sidebarSearchBox').value;
+                break;
+            case 'periode':
+                document.getElementById('periodeFilter').value = document.getElementById('sidebarPeriodeFilter').value;
+                break;
+            case 'position':
+                document.getElementById('positionFilter').value = document.getElementById('sidebarPositionFilter').value;
+                break;
+            case 'branch':
+                document.getElementById('branchFilter').value = document.getElementById('sidebarBranchFilter').value;
+                break;
+            case 'zeroMTD':
+                document.getElementById('zeroMTDFilter').value = document.getElementById('sidebarZeroMTDFilter').value;
+                break;
+        }
+        filterAndSearchTable();
+    }
+
+    function applySidebarFilters() {
+        syncSidebarToMain('search');
+        syncSidebarToMain('periode');
+        syncSidebarToMain('position');
+        syncSidebarToMain('branch');
+        syncSidebarToMain('zeroMTD');
+        filterAndSearchTable();
+        toggleSidebar();
+    }
+
+    function resetSidebarFilters() {
+        document.getElementById('sidebarSearchBox').value = '';
+        document.getElementById('sidebarPeriodeFilter').value = '';
+        document.getElementById('sidebarPositionFilter').value = '';
+        document.getElementById('sidebarBranchFilter').value = '';
+        document.getElementById('sidebarZeroMTDFilter').value = '';
+        
+        // Also reset main filters
+        resetFilter();
     }
 
     // =========================================
@@ -721,6 +1054,17 @@
         if (sortedPeriods.length) periodeFilter.value = sortedPeriods[0];
 
         fillPositionSelect(posFilter, positions);
+        
+        // Populate sidebar filters
+        const sidebarBranchFilter = document.getElementById('sidebarBranchFilter');
+        const sidebarPeriodeFilter = document.getElementById('sidebarPeriodeFilter');
+        const sidebarPosFilter = document.getElementById('sidebarPositionFilter');
+        
+        fillSelect(sidebarBranchFilter, branches, 'All Branch', false);
+        fillSelect(sidebarPeriodeFilter, sortedPeriods, 'All Period', true);
+        if (sortedPeriods.length) sidebarPeriodeFilter.value = sortedPeriods[0];
+        fillPositionSelect(sidebarPosFilter, positions);
+        
         filterAndSearchTable();
         closeChart(); // Pastikan chart tertutup saat inisialisasi
     }
